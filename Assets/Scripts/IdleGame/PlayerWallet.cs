@@ -1,39 +1,27 @@
 using System.Collections;
 using NaughtyAttributes;
-using UnityEditor;
 using UnityEngine;
 
 public class PlayerWallet : MonoBehaviour
 {
-	private uint productionRate;
 	private ulong wallet;
 
-	private void OnEnable()
+	public void Withdraw(uint value)
 	{
-		StartCoroutine(CurrencyUpdate());
+		wallet -= (uint)value;
 	}
 
-	public void AddToProductionRate(int value)
+	public void Deposit(uint value)
 	{
-		MathUtils.ModifyUint(value, ref productionRate);
+		wallet += (uint)value;
+
 	}
 
-	public void AddToWallet(int value)
+	public bool CheckWalletFor(uint value)
 	{
-		MathUtils.ModifyUlong(value, ref wallet);
-	}
+		if (wallet > value)
+			return true;
 
-	private IEnumerator CurrencyUpdate()
-	{
-		while (true)
-		{
-			wallet += productionRate;
-			yield return new WaitForSeconds(1f);
-		}
-	}
-
-	private void OnDisable()
-	{
-		StopAllCoroutines();
+		return false;
 	}
 }

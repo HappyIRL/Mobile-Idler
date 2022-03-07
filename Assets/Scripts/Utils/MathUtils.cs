@@ -5,11 +5,11 @@ using UnityEngine;
 public static class MathUtils
 {
 	/// <summary>
-	/// Int to uint dash refraction
+	/// Int to uint dash calculation
 	/// </summary>
 	/// <param name="modifier"></param>
 	/// <param name="toModify"></param>
-    public static void ModifyUint(int modifier, ref uint toModify)
+	public static void ModifyUint(int modifier, ref uint toModify)
     {
 	    if (modifier > 0)
 		    toModify += (uint)modifier;
@@ -18,7 +18,7 @@ public static class MathUtils
     }
 
 	/// <summary>
-	/// Int to ulong dash refraction
+	/// Int to ulong dash calculation
 	/// </summary>
 	/// <param name="modifier"></param>
 	/// <param name="toModify"></param>

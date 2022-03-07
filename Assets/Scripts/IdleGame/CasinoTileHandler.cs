@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using NaughtyAttributes;
 using TMPro;
 using UnityEngine;
 
@@ -14,9 +16,9 @@ public class CasinoTileHandler : MonoBehaviour
 {
 	[SerializeField] private List<GameSlotData> gameSlotDatas = new List<GameSlotData>();
 
-	public IReadOnlyDictionary<CasinoTile, Vector3> CasinoTiles => casinoTiles;
-	private Dictionary<CasinoTile, Vector3> casinoTiles = new Dictionary<CasinoTile, Vector3>();
+	public IReadOnlyList<CasinoTile> CasinoTiles => casinoTiles;
 
+	private List<CasinoTile> casinoTiles = new List<CasinoTile>();
 	private Dictionary<GameType, GameSlotData> dataDictionary = new Dictionary<GameType, GameSlotData>();
 
 	private void Awake()
@@ -32,6 +34,18 @@ public class CasinoTileHandler : MonoBehaviour
 
 	private void CreateCasinoTile(Vector3 position, GameType gameType)
 	{
-		casinoTiles.Add(new CasinoTile(dataDictionary[gameType]), position);
+		CasinoTile tile = new CasinoTile(dataDictionary[gameType], position);
+
+		casinoTiles.Add(tile);
 	}
+
+#if UNITY_EDITOR
+
+	[Button(enabledMode: EButtonEnableMode.Editor)]
+	private void TestCreateCasinoTile()
+	{
+		CreateCasinoTile(Vector3.zero, GameType.Blackjack);
+	}
+
+#endif
 }

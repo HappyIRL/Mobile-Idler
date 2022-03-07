@@ -4,22 +4,26 @@ using UnityEditor;
 using UnityEngine;
 
 public class CasinoTile
-{
-	private GameSlotData gameType;
+{ 
+	public Vector3 Position => position;
 
-	public CasinoTile(GameSlotData gameType)
-	{
-		this.gameType = gameType;
-	}
+	private GameSlotData slotData;
+	private Vector3 position;
 
 	private int availableGameSlots = 3;
-	private List<ScriptableObject> gameSlots = new List<ScriptableObject>();
+	private List<GameSlotData> gameSlots = new List<GameSlotData>();
+
+	public CasinoTile(GameSlotData slotData, Vector3 position)
+	{
+		this.slotData = slotData;
+		this.position = position;
+	}
 
 	/// <summary>
 	/// Tries to create a GameSlotData, returns true if succeeded
 	/// </summary>
 	/// <returns></returns>
-	private bool CreateGameSlot()
+	public bool UnluckGameSlot()
 	{
 		if (availableGameSlots == 0)
 			return false;
@@ -29,5 +33,10 @@ public class CasinoTile
 		availableGameSlots--;
 
 		return true;
+	}
+
+	public GameSlotData GetGameSlotAt(Vector3 position)
+	{
+		return gameSlots[0];
 	}
 }
