@@ -34,7 +34,7 @@ public class CasinoTileHandler : MonoBehaviour
 
 	private void CreateCasinoTile(Vector3 position, GameType gameType)
 	{
-		CasinoTile tile = new CasinoTile(dataDictionary[gameType], position);
+		CasinoTile tile = new CasinoTile(dataDictionary[gameType]);
 
 		casinoTiles.Add(tile);
 	}

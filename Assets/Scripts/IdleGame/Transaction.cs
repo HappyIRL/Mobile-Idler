@@ -5,28 +5,33 @@ using UnityEngine;
 public class Transaction
 {
 	private PlayerWallet playerWallet;
+	private uint cost;
 
-	public Transaction(PlayerWallet playerWallet)
+	public Transaction(PlayerWallet playerWallet, IPurchasable purchasable)
 	{
 		this.playerWallet = playerWallet;
+		cost = purchasable.GetCost();
 	}
 
 	/// <summary>
-	/// Returns true if the purchase has succeeded.
+	/// Returns true if the transaction is valid.
 	/// </summary>
-	/// <param name="purchasable"></param>
 	/// <returns></returns>
-	private bool Purchase(IPurchasable purchasable)
+	public bool Validate()
 	{
-		uint cost = purchasable.GetCost();
+		return playerWallet.CheckWalletFor(cost);
+	}
 
-		bool enoughFunds = playerWallet.CheckWalletFor(cost);
-
-		if (!enoughFunds)
+	/// <summary>
+	/// Returns true if the transaction succeeded.
+	/// </summary>
+	/// <returns></returns>
+	public bool Pursue()
+	{
+		if (!Validate())
 			return false;
 
 		playerWallet.Withdraw(cost);
-
 		return true;
 	}
 }

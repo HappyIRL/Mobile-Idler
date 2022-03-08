@@ -1,13 +1,16 @@
 using System.Security;
 using UnityEngine;
 
+/// <summary>
+/// Should be used as asset instance and not as runtime instance
+/// </summary>
 [CreateAssetMenu(menuName = "ScriptableObjects/GameSlotData")]
 public class GameSlotData : ScriptableObject
 {
-	[SerializeField] private int productionRate = 10;
 	[SerializeField] private GameType gameType;
-	[SerializeField] private uint cost = 100;
-	
-	public uint UpgradeLevel = 1;
+	[SerializeField] private uint baseProductionRate = 10;
+	[SerializeField] private uint baseCost = 100;
+
 	public GameType GameType => gameType;
+	public uint BaseCost => baseCost;
 }

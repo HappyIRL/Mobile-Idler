@@ -7,6 +7,7 @@ using Zenject;
 	public class DefaultSceneInstaller : ScriptableObjectInstaller<DefaultSceneInstaller>
 	{
 		[SerializeField] private GameObject mainCameraPrefab, playerInputHandlerPrefab, deviceOrientationPrefab, selectorPrefab, playerWalletPrefab, casinoTileHandlerPrefab;
+		[SerializeField] private GameObject incomePrefab, cashierPrefab;
 
 		public override void InstallBindings()
 		{
@@ -16,6 +17,8 @@ using Zenject;
 			Container.Bind<Selector>().FromComponentInNewPrefab(selectorPrefab).AsSingle().NonLazy();
 			Container.Bind<PlayerWallet>().FromComponentInNewPrefab(playerWalletPrefab).AsSingle().NonLazy();
 			Container.Bind<CasinoTileHandler>().FromComponentInNewPrefab(casinoTileHandlerPrefab).AsSingle().NonLazy();
+			Container.Bind<Income>().FromComponentInNewPrefab(incomePrefab).AsSingle().NonLazy();
+			Container.Bind<Cashier>().FromComponentInNewPrefab(cashierPrefab).AsSingle().NonLazy();
 
 
 			Container.BindFactory<GameObject, Transform, PrefabFactory>().FromFactory<NormalPrefabFactory>();
