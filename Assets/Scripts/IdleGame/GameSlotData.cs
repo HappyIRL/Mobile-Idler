@@ -12,5 +12,6 @@ public class GameSlotData : ScriptableObject
 	[SerializeField] private uint baseCost = 100;
 
 	public GameType GameType => gameType;
+	public uint BaseProductionRate => baseProductionRate;
 	public uint BaseCost => baseCost;
 }

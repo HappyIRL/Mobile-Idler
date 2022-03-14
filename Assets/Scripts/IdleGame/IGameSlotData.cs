@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface ITransactionCallbacks
+public interface IGameSlotData
 {
-	public void TransactionState(bool valid);
+    
 }

@@ -1,11 +1,11 @@
 
-public class PossibleUIRoom : UIRoom
+public class PossibleUiRoom : UiButton
 {
-	public UIRoomManager manager;
+	public UiRoomFactory Factory;
 
 	protected override void OnClick()
 	{
-		manager.NewRoom(rect, GameType.Roulette);
+		Factory.PlaceNewRoom(rect, GameType.Roulette);
 		Destroy(gameObject);
 	}
 }

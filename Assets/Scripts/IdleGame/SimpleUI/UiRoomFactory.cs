@@ -2,10 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UIRoomManager : MonoBehaviour
+public class UiRoomFactory : MonoBehaviour
 {
 	[Zenject.Inject] private PrefabFactory prefabFactory;
-	[Zenject.Inject] private Cashier cashier;
 
 	[SerializeField] private GameObject PlacedUIRoomPrefab;
 	[SerializeField] private GameObject PossibleUIRoomPrefab;
@@ -17,8 +16,9 @@ public class UIRoomManager : MonoBehaviour
 
 	private Dictionary<Vector2, Rect> freeRects = new Dictionary<Vector2, Rect>();
 
-	private Dictionary<Vector2, PlacedUIRoom> placedUIRooms = new Dictionary<Vector2, PlacedUIRoom>();
-	private Dictionary<Vector2, PossibleUIRoom> possibleUIRooms = new Dictionary<Vector2, PossibleUIRoom>();
+	private Dictionary<Vector2, PlacedUiRoom> placedUIRooms = new Dictionary<Vector2, PlacedUiRoom>();
+	private Dictionary<Vector2, PossibleUiRoom> possibleUIRooms = new Dictionary<Vector2, PossibleUiRoom>();
+	private Dictionary<GameType, GameSlotData> gameSlotDatas = new Dictionary<GameType, GameSlotData>();
 
 	//needs to be uneven
 	private int rectScaler = 7;
@@ -44,14 +44,15 @@ public class UIRoomManager : MonoBehaviour
 
 	private void Start()
 	{
-		NewRoom(centerRect, GameType.Roulette);
+		PlaceNewRoom(centerRect, GameType.Roulette);
 	}
 
-	public void NewRoom(Rect rect, GameType name)
+	public void PlaceNewRoom(Rect rect, GameType gameType)
 	{
-		PlacedUIRoom room = prefabFactory.Create(PlacedUIRoomPrefab, transform).GetComponent<PlacedUIRoom>();
-		room.SetDependencies(rect, name.ToString(), ref cashier);
-		placedUIRooms.Add(rect.position, room);
+		PlacedUiRoom uiRoom = prefabFactory.Create(PlacedUIRoomPrefab, transform).GetComponent<PlacedUiRoom>();
+		uiRoom.Init(rect, gameType.ToString());
+		uiRoom.SetGameSlotData(gameSlotDatas[gameType]);
+		placedUIRooms.Add(rect.position, uiRoom);
 		freeRects.Remove(rect.position);
 		CreatePossibleRooms(rect.position);
 	}
@@ -68,9 +69,9 @@ public class UIRoomManager : MonoBehaviour
 		{
 			if (freeRects.ContainsKey(item) && !possibleUIRooms.ContainsKey(item))
 			{
-				PossibleUIRoom room = prefabFactory.Create(PossibleUIRoomPrefab, transform).GetComponent<PossibleUIRoom>();
-				room.SetDependencies(freeRects[item], "x", ref cashier);
-				room.manager = this;
+				PossibleUiRoom room = prefabFactory.Create(PossibleUIRoomPrefab, transform).GetComponent<PossibleUiRoom>();
+				room.Init(freeRects[item], "x");
+				room.Factory = this;
 				possibleUIRooms.Add(item, room);
 			}
 		}

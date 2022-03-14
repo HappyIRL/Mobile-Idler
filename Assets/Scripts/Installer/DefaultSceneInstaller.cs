@@ -16,7 +16,7 @@ using Zenject;
 			Container.Bind<DeviceOrientationHandler>().FromComponentInNewPrefab(deviceOrientationPrefab).AsSingle().NonLazy();
 			Container.Bind<Selector>().FromComponentInNewPrefab(selectorPrefab).AsSingle().NonLazy();
 			Container.Bind<PlayerWallet>().FromComponentInNewPrefab(playerWalletPrefab).AsSingle().NonLazy();
-			Container.Bind<CasinoTileHandler>().FromComponentInNewPrefab(casinoTileHandlerPrefab).AsSingle().NonLazy();
+			Container.Bind<CasinoTileSpawner>().FromComponentInNewPrefab(casinoTileHandlerPrefab).AsSingle().NonLazy();
 			Container.Bind<Income>().FromComponentInNewPrefab(incomePrefab).AsSingle().NonLazy();
 			Container.Bind<Cashier>().FromComponentInNewPrefab(cashierPrefab).AsSingle().NonLazy();
 

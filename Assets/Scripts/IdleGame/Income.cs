@@ -18,14 +18,6 @@ public class Income : MonoBehaviour
 		productionRate += value;
 	}
 
-	public void DecreaseProductionRate(uint value = 100)
-	{
-		if(productionRate >= value)
-			productionRate -= value;
-		else
-			Debug.LogError("ProductionRate can't be below 0");
-	}
-
 	private void OnEnable()
 	{
 		StartCoroutine(CurrencyUpdate());

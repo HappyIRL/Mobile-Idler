@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct GameSlot : IPurchasable
+public struct GameSlot
 {
-	public GameType type;
+	public GameType gameType;
 	public uint productionRate;
 	public uint cost;
+	public uint upgradeCost;
 	public uint upgradeLevel;
-	public uint GetCost() => cost;
 }

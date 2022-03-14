@@ -3,13 +3,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public struct TransactionData
+{
+	public Transaction transaction;
+	public int id;
+	public ITransactionCallbacks callback;
+
+	public TransactionData(Transaction transaction, int id, ITransactionCallbacks callback)
+	{
+		this.transaction = transaction;
+		this.id = id;
+		this.callback = callback;
+	}
+}
+
 public class Cashier : MonoBehaviour
 {
 	[Zenject.Inject] private PlayerWallet playerWallet;
 	[Zenject.Inject] private Income income;
 
-	private Transaction transaction;
-	private ITransactionCallbacks callback;
+	private List<TransactionData> transactionDatas = new List<TransactionData>();
+
+	private int id = -1;
+
 
 	private void OnEnable()
 	{
@@ -21,28 +37,43 @@ public class Cashier : MonoBehaviour
 	/// </summary>
 	/// <param name="purchasable"></param>
 	/// <param name="callback"></param>
-	public void NewTransaction(IPurchasable purchasable, ITransactionCallbacks callback)
+	public int NewTransaction(IPurchasable purchasable, ITransactionCallbacks callback)
 	{
-		this.callback = callback;
-		transaction = new Transaction(playerWallet, purchasable);
+		id++;
+		TransactionData data = new TransactionData(new Transaction(playerWallet, purchasable), id, callback);
+		transactionDatas.Add(data);
+		return id;
 	}
 
 	private void OnCurrencyTick()
 	{
-		if(transaction == null)
+		if (transactionDatas.Count == 0)
 			return;
 
-		if(transaction.Validate())
-			callback.TransactionIsValid();
+		foreach (TransactionData data in transactionDatas)
+		{
+			bool valid = data.transaction.Validate();
+
+			data.callback.TransactionState(valid);
+		}
+
 	}
 
 	/// <summary>
-	/// Returns false if failed.
+	/// Returns false on failure to compelete.
 	/// </summary>
 	/// <returns></returns>
-	public bool CompleteTransaction()
+	public bool CompleteTransaction(int id)
 	{
-		return transaction.Pursue();
+		foreach (TransactionData data in transactionDatas)
+		{
+			if (data.id == id)
+			{
+				return data.transaction.Pursue();
+			}
+		}
+
+		return false;
 	}
 
 	private void OnDisable()

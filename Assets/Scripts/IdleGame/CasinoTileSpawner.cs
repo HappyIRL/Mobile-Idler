@@ -12,11 +12,9 @@ public enum GameType
 	Blackjack
 }
 
-public class CasinoTileHandler : MonoBehaviour
+public class CasinoTileSpawner : MonoBehaviour
 {
 	[SerializeField] private List<GameSlotData> gameSlotDatas = new List<GameSlotData>();
-
-	public IReadOnlyList<CasinoTile> CasinoTiles => casinoTiles;
 
 	private List<CasinoTile> casinoTiles = new List<CasinoTile>();
 	private Dictionary<GameType, GameSlotData> dataDictionary = new Dictionary<GameType, GameSlotData>();
@@ -38,14 +36,4 @@ public class CasinoTileHandler : MonoBehaviour
 
 		casinoTiles.Add(tile);
 	}
-
-#if UNITY_EDITOR
-
-	[Button(enabledMode: EButtonEnableMode.Editor)]
-	private void TestCreateCasinoTile()
-	{
-		CreateCasinoTile(Vector3.zero, GameType.Blackjack);
-	}
-
-#endif
 }
