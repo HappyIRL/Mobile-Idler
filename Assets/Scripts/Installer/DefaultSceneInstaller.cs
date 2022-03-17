@@ -6,8 +6,10 @@ using Zenject;
 	[CreateAssetMenu(menuName = "ScriptableObjects/DefaultSceneInstaller")]
 	public class DefaultSceneInstaller : ScriptableObjectInstaller<DefaultSceneInstaller>
 	{
-		[SerializeField] private GameObject mainCameraPrefab, playerInputHandlerPrefab, deviceOrientationPrefab, selectorPrefab, playerWalletPrefab, casinoTileHandlerPrefab;
-		[SerializeField] private GameObject incomePrefab, cashierPrefab;
+		[SerializeField] private GameObject mainCameraPrefab, playerInputHandlerPrefab, deviceOrientationPrefab, selectorPrefab;
+
+		[SerializeField]
+		private GameObject saveHandlerPrefab, gameHandlerPrefab, prototypeSelectorPrefab, sceneViewPrefab;
 
 		public override void InstallBindings()
 		{
@@ -15,10 +17,12 @@ using Zenject;
 			Container.Bind<PlayerInputBroadcast>().FromComponentInNewPrefab(playerInputHandlerPrefab).AsSingle().NonLazy();
 			Container.Bind<DeviceOrientationHandler>().FromComponentInNewPrefab(deviceOrientationPrefab).AsSingle().NonLazy();
 			Container.Bind<Selector>().FromComponentInNewPrefab(selectorPrefab).AsSingle().NonLazy();
-			Container.Bind<PlayerWallet>().FromComponentInNewPrefab(playerWalletPrefab).AsSingle().NonLazy();
-			Container.Bind<CasinoTileSpawner>().FromComponentInNewPrefab(casinoTileHandlerPrefab).AsSingle().NonLazy();
-			Container.Bind<Income>().FromComponentInNewPrefab(incomePrefab).AsSingle().NonLazy();
-			Container.Bind<Cashier>().FromComponentInNewPrefab(cashierPrefab).AsSingle().NonLazy();
+
+			Container.Bind<SaveHandler>().FromComponentInNewPrefab(saveHandlerPrefab).AsSingle().NonLazy();
+			Container.Bind<OnGUISceneView>().FromComponentInNewPrefab(sceneViewPrefab).AsSingle().NonLazy();
+			Container.Bind<GameHandler>().FromComponentInNewPrefab(gameHandlerPrefab).AsSingle().NonLazy();
+			Container.Bind<PrototypeSelector>().FromComponentInNewPrefab(prototypeSelectorPrefab).AsSingle().NonLazy();
+
 
 
 			Container.BindFactory<GameObject, Transform, PrefabFactory>().FromFactory<NormalPrefabFactory>();
