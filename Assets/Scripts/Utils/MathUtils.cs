@@ -7,8 +7,8 @@ public static class MathUtils
 	/// <summary>
 	/// Int to uint dash calculation
 	/// </summary>
-	/// <param name="modifier"></param>
-	/// <param name="toModify"></param>
+	/// <param Name="modifier"></param>
+	/// <param Name="toModify"></param>
 	public static void ModifyUint(int modifier, ref uint toModify)
     {
 	    if (modifier > 0)
@@ -20,8 +20,8 @@ public static class MathUtils
 	/// <summary>
 	/// Int to ulong dash calculation
 	/// </summary>
-	/// <param name="modifier"></param>
-	/// <param name="toModify"></param>
+	/// <param Name="modifier"></param>
+	/// <param Name="toModify"></param>
 	public static void ModifyUlong(int modifier, ref ulong toModify)
 	{
 		if (modifier > 0)

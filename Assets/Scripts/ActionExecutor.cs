@@ -1,16 +1,19 @@
+using System;
+using CasinoIdler;
 
 public class ActionExecutor
 {
-	[Zenject.Inject] private PrototypeSelector selector;
+	private PrototypeSelector selector;
 
 	private readonly PlayerWallet playerWallet;
-	private ISelectable lastSelection;
-	private ISelectable selection;
+	private LastSelectionData lastSelection;
+	private ISelectable selection => selector.Selection;
 	private CasinoIdler.Action[] selectedActions;
 
-	public ActionExecutor(PlayerWallet playerWallet)
+	public ActionExecutor(PlayerWallet playerWallet, PrototypeSelector selector)
 	{
 		this.playerWallet = playerWallet;
+		this.selector = selector;
 	}
 
 	public ulong GetWalletAmount()
@@ -18,29 +21,30 @@ public class ActionExecutor
 		return playerWallet.Wallet;
 	}
 
-	public void OnSelectionChange(ISelectable selection)
+	public ActionDisplayData[] GetActionsDisplayData()
 	{
-		this.selection = selection;
-	}
+		if (selector.Selection == null)
+			return Array.Empty<ActionDisplayData>();
 
-	public CasinoIdler.ActionDisplayData[] GetActionsDisplayData()
-	{
-		if (lastSelection != selection)
-			selectedActions = selection.GetActions();
+		if (lastSelection.selection == selection)
+			return lastSelection.data;
 
-		CasinoIdler.ActionDisplayData[] result = new CasinoIdler.ActionDisplayData[selectedActions.Length];
+		selectedActions = selection.GetActions();
+
+		ActionDisplayData[] result = new ActionDisplayData[selectedActions.Length];
 
 		for (int i = 0; i < result.Length; i++)
 		{
-			CasinoIdler.ActionDisplayData data = new CasinoIdler.ActionDisplayData();
+			ActionDisplayData data = new ActionDisplayData();
 
-			data.name = selectedActions[i].name;
+			data.name = selectedActions[i].Name;
 			data.isDisplayable = selectedActions[i].CanExecute(playerWallet);
 
 			result[i] = data;
 		}
 
-		lastSelection = selection;
+		lastSelection.selection = selection;
+		lastSelection.data = result;
 
 		return result;
 	}
@@ -48,5 +52,11 @@ public class ActionExecutor
 	public void ExecuteAction(int index)
 	{
 		selectedActions[index].Execute(playerWallet);
+	}
+
+	public struct LastSelectionData
+	{
+		public ISelectable selection;
+		public ActionDisplayData[] data;
 	}
 }

@@ -29,7 +29,7 @@ public partial class @IdleCasinoGame : IInputActionCollection2, IDisposable
             ""actions"": [
                 {
                     ""name"": ""Touch0Tap"",
-                    ""gameType"": ""Button"",
+                    ""type"": ""Button"",
                     ""id"": ""7144b8f3-b455-4196-a271-28d1d22324bc"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
@@ -38,7 +38,7 @@ public partial class @IdleCasinoGame : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""Touch0"",
-                    ""gameType"": ""Button"",
+                    ""type"": ""Button"",
                     ""id"": ""cb35500f-1e08-4db6-b730-b04a134a6d22"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
@@ -47,7 +47,7 @@ public partial class @IdleCasinoGame : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""Touch1"",
-                    ""gameType"": ""Button"",
+                    ""type"": ""Button"",
                     ""id"": ""3b3e20c2-5bbb-4027-9457-0b83e8ec80d9"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
@@ -56,7 +56,7 @@ public partial class @IdleCasinoGame : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""Touch0Position"",
-                    ""gameType"": ""PassThrough"",
+                    ""type"": ""PassThrough"",
                     ""id"": ""da1b69a8-4636-4666-bfdc-c17b51b28d43"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
@@ -65,7 +65,7 @@ public partial class @IdleCasinoGame : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""Touch1Position"",
-                    ""gameType"": ""PassThrough"",
+                    ""type"": ""PassThrough"",
                     ""id"": ""3a89f2f1-12a3-4472-805e-31f851be161c"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
@@ -74,7 +74,7 @@ public partial class @IdleCasinoGame : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""Touch0Delta"",
-                    ""gameType"": ""Value"",
+                    ""type"": ""Value"",
                     ""id"": ""97331bac-adb9-4767-a932-ea636441f01e"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
@@ -83,7 +83,7 @@ public partial class @IdleCasinoGame : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""Touch1Delta"",
-                    ""gameType"": ""Value"",
+                    ""type"": ""Value"",
                     ""id"": ""f4fdea0a-1de2-4f9e-b7e0-63ec1217165a"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",

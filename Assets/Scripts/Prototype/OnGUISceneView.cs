@@ -50,9 +50,4 @@ public class OnGUISceneView : MonoBehaviour
 			EditorGUI.EndDisabledGroup();
 		}
 	}
-
-	private void OnDisable()
-	{
-		isInitComplete = false;
-	}
 }

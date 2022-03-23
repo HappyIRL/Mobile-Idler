@@ -2,22 +2,15 @@ using System;
 using System.Data;
 using UnityEngine;
 
-public enum GameType
-{
-    Roulette,
-    Blackjack,
-    SlotMachine
-}
-
 public class GameSlot
 {
-	private GameType type;
+	private GameTypes types;
 	private int level;
-	private int cost;
+	private uint cost;
 
 	public GameSlot(GameSlotData data)
 	{
-		type = data.Type;
+		types = data.Types;
 		level = data.Level;
 		cost = data.Cost;
 	}
@@ -25,7 +18,7 @@ public class GameSlot
 	public GameSlotData FetchData()
 	{
 		GameSlotData data = new GameSlotData();
-		data.Type = type;
+		data.Types = types;
 		data.Level = level;
 		data.Cost = cost;
 		return data;
@@ -35,7 +28,7 @@ public class GameSlot
 [Serializable]
 public struct GameSlotData
 {
-	public GameType Type;
+	public GameTypes Types;
 	public int Level;
-	public int Cost;
+	public uint Cost;
 }

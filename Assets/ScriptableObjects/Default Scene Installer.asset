@@ -16,7 +16,7 @@ MonoBehaviour:
   playerInputHandlerPrefab: {fileID: 7344739823247230919, guid: 9dcb7c3855e949241a09e8dd568dee01, type: 3}
   deviceOrientationPrefab: {fileID: 6425486051685879519, guid: 1c1d3102883d5a64d9cf306f221e8d09, type: 3}
   selectorPrefab: {fileID: 4341723271585568393, guid: 9aa6577f18dba284381f2ddc5fa692ca, type: 3}
-  casinoTileHandlerPrefab: {fileID: 1757700424920028329, guid: eca2f3bc368b8594b94df7eb336795f0, type: 3}
-  incomePrefab: {fileID: 6789903108644845546, guid: f581aa28fe10401499dbb0e90f6fe801, type: 3}
-  cashierPrefab: {fileID: 3390722596069226966, guid: e24aa82b657d6e54c9a950da98cfd16a, type: 3}
-  playerWalletPrefab: {fileID: 724710623205099132, guid: 9849641da44d6e44f99dff36fbacea0b, type: 3}
+  saveHandlerPrefab: {fileID: 2536712266011563049, guid: 175f394d54cc69e4382a4d133ade26e0, type: 3}
+  gameHandlerPrefab: {fileID: 8554689118614649121, guid: 6858762af1104744fbb37523bb7e6d86, type: 3}
+  prototypeSelectorPrefab: {fileID: 5019264740213919227, guid: 858b33823bef0c3439e7f660165a08fa, type: 3}
+  sceneViewPrefab: {fileID: 314809236030790156, guid: 2caf2dba80d11d64791cf7b764fa97e0, type: 3}

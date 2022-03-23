@@ -1,32 +1,45 @@
 using System;
-using JetBrains.Annotations;
+using System.Collections.Generic;
+using CasinoIdler;
+using Action = CasinoIdler.Action;
 
-public class Casino
+public class Casino : ISelectable
 {
-	private GameRoom[] gameRooms;
+	private List<GameRoom> gameRooms = new List<GameRoom>();
 	private uint productionRate;
+
+	private const uint BaseGameRoomCost = 5;
 
 	public Casino()
 	{
-		NewCasino();
+		CreateGameRoom(null);
 	}
 
 	public Casino(CasinoData data)
 	{
-		productionRate = data.ProductionRate;
-
-		gameRooms = new GameRoom[data.GameRoomDatas.Length];
-
-		for (var i = 0; i < data.GameRoomDatas.Length; i++)
+		foreach (var roomData in data.GameRoomsData)
 		{
-			var roomData = data.GameRoomDatas[i];
-			GameRoom room = new GameRoom(roomData);
-			gameRooms[i] = room;
+			CreateGameRoom(roomData);
 		}
+
+		RefreshProductionRate();
+	}
+
+	private void RefreshProductionRate()
+	{
+		uint result = 0;
+
+		foreach (var gameRoom in gameRooms)
+		{
+			result += gameRoom.ProductionRate;
+		}
+
+		productionRate = result;
 	}
 
 	public uint GetMoneyLastIdleTick()
 	{
+		RefreshProductionRate();
 		return productionRate;
 	}
 
@@ -34,28 +47,60 @@ public class Casino
 	{
 		CasinoData data = new CasinoData();
 
-		GameRoomData[] roomDatas = new GameRoomData[gameRooms.Length];
+		GameRoomData[] gameRoomsData = new GameRoomData[gameRooms.Count];
 
-		for (int i = 0; i < gameRooms.Length; i++)
+		for (int i = 0; i < gameRooms.Count; i++)
 		{
-			roomDatas[i] = gameRooms[i].FetchData();
+			gameRoomsData[i] = gameRooms[i].FetchData();
 		}
 
-		data.GameRoomDatas = roomDatas;
+		data.GameRoomsData = gameRoomsData;
 		data.ProductionRate = productionRate;
 
 		return data;
 	}
 
-	private void NewCasino()
+	private void CreateGameRoom(GameRoomData? data)
 	{
+		GameRoom gameRoom;
 
+		if (data != null)
+			gameRoom = new GameRoom(data.Value);
+		else
+			gameRoom = new GameRoom(GetBaseGameRoomData());
+
+		gameRooms.Add(gameRoom);
+	}
+
+	private void OnNewGameRoom()
+	{
+		CreateGameRoom(null);
+	}
+
+	private GameRoomData GetBaseGameRoomData()
+	{
+		GameRoomData data = new GameRoomData();
+		data.Cost = BaseGameRoomCost;
+
+		return data;
+	}
+
+	public Action[] GetActions()
+	{
+		return new Action[] { new PurchaseAction("Add GameRoom", BaseGameRoomCost, OnNewGameRoom) };
 	}
 }
 
 [Serializable]
 public struct CasinoData
 {
-	public GameRoomData[] GameRoomDatas;
+	public GameRoomData[] GameRoomsData;
 	public uint ProductionRate;
+}
+
+public enum GameTypes
+{
+	Roulette,
+	Blackjack,
+	SlotMachine
 }

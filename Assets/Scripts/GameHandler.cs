@@ -1,14 +1,15 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GameHandler : MonoBehaviour
 {
 	[Zenject.Inject] private OnGUISceneView sceneView;
+	[Zenject.Inject] private PrototypeSelector selector;
+
 	public Action Tick;
 
-	private const float IDLE_TICK_DURATION = 1f;
+	private const float IdleTickDuration = 1f;
 
 	private Casino casino;
 	private Cashier cashier;
@@ -19,9 +20,13 @@ public class GameHandler : MonoBehaviour
 	public void SetGameData(GameData? gameData)
 	{
 		if (gameData == null)
+		{
 			OnNewSaveGame();
+			return;
+		}
 
-		//on load implementation
+		CasinoData casinoData = gameData.Value.CasinoData;
+		GameInit(new Casino(casinoData), gameData.Value.Wallet);
 	}
 
 	public GameData GetGameData()
@@ -31,15 +36,15 @@ public class GameHandler : MonoBehaviour
 
 	private void OnNewSaveGame()
 	{
-		casino = new Casino();
-		GameInit(casino);
+		GameInit(new Casino(), 0);
 	}
 
-	private void GameInit(Casino casino)
+	private void GameInit(Casino casino, ulong walletAmount)
 	{
-		playerWallet = new PlayerWallet();
+		this.casino = casino;
+		playerWallet = new PlayerWallet(walletAmount);
 		cashier = new Cashier(casino, playerWallet);
-		actionExecutor = new ActionExecutor(playerWallet);
+		actionExecutor = new ActionExecutor(playerWallet, selector);
 		sceneView.Init(actionExecutor);
 		StartCoroutine(IdleTick());
 	}
@@ -50,7 +55,7 @@ public class GameHandler : MonoBehaviour
 		{
 			Tick?.Invoke();
 			cashier.OnTick();
-			yield return new WaitForSeconds(IDLE_TICK_DURATION);
+			yield return new WaitForSeconds(IdleTickDuration);
 		}
 	}
 

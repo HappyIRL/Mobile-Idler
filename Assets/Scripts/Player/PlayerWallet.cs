@@ -4,6 +4,11 @@ public class PlayerWallet
 
 	public ulong Wallet => wallet;
 
+	public PlayerWallet(ulong wallet)
+	{
+		this.wallet = wallet;
+	}
+
 	public void Withdraw(uint value)
 	{
 		wallet -= value;
@@ -12,7 +17,6 @@ public class PlayerWallet
 	public void Deposit(uint value)
 	{
 		wallet += value;
-
 	}
 
 	public bool CheckWalletFor(uint value)
