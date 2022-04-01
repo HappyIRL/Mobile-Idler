@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using CasinoIdler;
 using Action = CasinoIdler.Action;
 
+
 public class Casino : ISelectable
 {
+	public IReadOnlyList<ISelectable> SubSelections => gameRooms;
+	public string Name => "Casino";
+
 	private List<GameRoom> gameRooms = new List<GameRoom>();
 	private uint productionRate;
 
@@ -69,10 +73,13 @@ public class Casino : ISelectable
 		else
 			gameRoom = new GameRoom(GetBaseGameRoomData());
 
+		IAction[] sellAction = {new SellGameRoomAction(this, "Sell GameRoom") };
+		gameRoom.InitActions(sellAction);
+
 		gameRooms.Add(gameRoom);
 	}
 
-	private void OnNewGameRoom()
+	public void CreateNewGameRoom()
 	{
 		CreateGameRoom(null);
 	}
@@ -85,9 +92,15 @@ public class Casino : ISelectable
 		return data;
 	}
 
-	public Action[] GetActions()
+	public uint RemoveGameRoom(GameRoom gameRoom)
 	{
-		return new Action[] { new PurchaseAction("Add GameRoom", BaseGameRoomCost, OnNewGameRoom) };
+		gameRooms.Remove(gameRoom);
+		return 5;
+	}
+
+	public ICollection<IAction> GetActions()
+	{
+		return new IAction[] { new PurchaseGameRoomAction("Purchase GameRoom", BaseGameRoomCost, this)};
 	}
 }
 

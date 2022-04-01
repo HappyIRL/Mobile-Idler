@@ -1,9 +1,12 @@
 using System;
-using System.Data;
-using UnityEngine;
+using System.Collections.Generic;
+using CasinoIdler;
 
-public class GameSlot
+public class GameSlot : ISelectable
 {
+	public IReadOnlyList<ISelectable> SubSelections => null;
+	public string Name => "GameSlot";
+
 	private GameTypes types;
 	private int level;
 	private uint cost;
@@ -22,6 +25,11 @@ public class GameSlot
 		data.Level = level;
 		data.Cost = cost;
 		return data;
+	}
+
+	public ICollection<IAction> GetActions()
+	{
+		return null;
 	}
 }
 

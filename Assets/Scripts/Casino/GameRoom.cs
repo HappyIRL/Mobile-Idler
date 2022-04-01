@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
 using CasinoIdler;
-using UnityEngine;
+using ModestTree;
 using Action = CasinoIdler.Action;
 
 public class GameRoom : ISelectable
 {
+	public IReadOnlyList<ISelectable> SubSelections => gameSlots;
+	public string Name => "GameRoom";
+
 	public uint ProductionRate { get; private set; }
 
 	private SerializedVector3 position;
 	private List<GameSlot> gameSlots = new List<GameSlot>();
+	private List<IAction> actions;
 	private GameTypes gameType;
 
 	private const uint BaseGameSlotCost = 5;
@@ -32,14 +36,14 @@ public class GameRoom : ISelectable
 		}
 	}
 
-	public void OnCreateGameSlot()
+	public void CreateNewGameSlot()
 	{
 		CreateGameSlot(null);
 	}
 
-	public Action[] GetActions()
+	public ICollection<IAction> GetActions()
 	{
-		return new Action[] { new PurchaseAction("Add GameSlot", BaseGameSlotCost, OnCreateGameSlot) };
+		return actions;
 	}
 
 	public GameRoomData FetchData()
@@ -57,6 +61,20 @@ public class GameRoom : ISelectable
 		data.Position = position;
 
 		return data;
+	}
+
+	public void InitActions(IAction[] actions)
+	{
+		this.actions = new List<IAction>();
+
+		this.actions.AddRange(actions);
+		this.actions.Add(new PurchaseGameSlotAction("Add GameSlot", BaseGameSlotCost));
+
+		for (int i = 0; i < actions.Length; i++)
+		{
+			if (actions[i] is IGameRoomUser user)
+				user.SetGameRoom(this);
+		}
 	}
 
 	private void CreateGameSlot(GameSlotData? data)

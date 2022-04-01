@@ -13,7 +13,6 @@ public class GameHandler : MonoBehaviour
 
 	private Casino casino;
 	private Cashier cashier;
-	private ActionExecutor actionExecutor;
 	private PlayerWallet playerWallet;
 	private GameState gameState = GameState.Running;
 
@@ -44,8 +43,7 @@ public class GameHandler : MonoBehaviour
 		this.casino = casino;
 		playerWallet = new PlayerWallet(walletAmount);
 		cashier = new Cashier(casino, playerWallet);
-		actionExecutor = new ActionExecutor(playerWallet, selector);
-		sceneView.Init(actionExecutor);
+		sceneView.Init(playerWallet, selector, casino);
 		StartCoroutine(IdleTick());
 	}
 

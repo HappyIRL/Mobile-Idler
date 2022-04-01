@@ -1,6 +1,7 @@
 using System.IO;
 using UnityEngine;
 
+//move logic of the path down to the saver
 public class SaveHandler : MonoBehaviour
 {
 	[Zenject.Inject] private GameHandler gameHandler;

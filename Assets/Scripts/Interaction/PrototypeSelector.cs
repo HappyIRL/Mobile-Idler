@@ -1,15 +1,14 @@
-using System;
-using UnityEngine;
+using System.Collections.Generic;
+using CasinoIdler;
 
-public class PrototypeSelector : MonoBehaviour
+public class PrototypeSelector : PlayerInputEventsBehaviour
 {
-	private ISelectable selection;
-	public ISelectable Selection => selection;
-
-	public Action<ISelectable> SelectionChanged;
+	public ISelectable Selection { get; set; }
 }
 
 public interface ISelectable
 {
-	public CasinoIdler.Action[] GetActions();
+	public ICollection<IAction> GetActions();
+	public IReadOnlyList<ISelectable> SubSelections { get; }
+	public string Name { get; }
 }
