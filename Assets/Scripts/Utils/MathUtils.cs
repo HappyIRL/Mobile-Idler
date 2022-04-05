@@ -1,34 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public static class MathUtils
 {
-	/// <summary>
-	/// Int to uint dash calculation
-	/// </summary>
-	/// <param Name="modifier"></param>
-	/// <param Name="toModify"></param>
-	public static void ModifyUint(int modifier, ref uint toModify)
-    {
-	    if (modifier > 0)
-		    toModify += (uint)modifier;
-	    else
-		    toModify -= (uint)modifier;
-    }
-
-	/// <summary>
-	/// Int to ulong dash calculation
-	/// </summary>
-	/// <param Name="modifier"></param>
-	/// <param Name="toModify"></param>
-	public static void ModifyUlong(int modifier, ref ulong toModify)
-	{
-		if (modifier > 0)
-			toModify += (ulong)modifier;
-		else
-			toModify -= (ulong)modifier;
-	}
+	
 }
 
 [System.Serializable]

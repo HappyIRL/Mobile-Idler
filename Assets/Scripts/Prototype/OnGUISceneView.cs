@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using CasinoIdler;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
 using Action = CasinoIdler.Action;
 
 public class OnGUISceneView : MonoBehaviour
@@ -11,9 +12,13 @@ public class OnGUISceneView : MonoBehaviour
 	private PlayerWallet wallet;
 	private ISelectable rootSelectable;
 
+	private ISelectable oldSelection;
+	private ICollection<IAction> actions;
+	private LinkedList<GameTypes> selectedGameTypeOptions = new LinkedList<GameTypes>((GameTypes[])Enum.GetValues(typeof(GameTypes)));
 	private bool isInitComplete;
+	private bool selectableToggle = true;
 
-	public void Init( PlayerWallet wallet ,PrototypeSelector selector, ISelectable rootSelectable)
+	public void Init( PlayerWallet wallet, PrototypeSelector selector, ISelectable rootSelectable)
 	{
 		this.selector = selector;
 		this.wallet = wallet;
@@ -27,7 +32,9 @@ public class OnGUISceneView : MonoBehaviour
 			return;
 
 		GUIDrawSelected(rootSelectable);
+		EditorGUILayout.BeginHorizontal();
 		GUIDrawActions();
+		EditorGUILayout.EndHorizontal();
 		GUIDrawCash();
 	}
 
@@ -35,7 +42,7 @@ public class OnGUISceneView : MonoBehaviour
 	{
 		if (GUILayout.Button(selectable.Name))
 		{
-			selector.Selection = selectable;
+			selector.SetSelectable(selectable);
 		}
 
 		if (selectable.SubSelections == null)
@@ -55,36 +62,48 @@ public class OnGUISceneView : MonoBehaviour
 	private void GUIDrawActions()
 	{
 		if (selector.Selection == null)
+		{
+			actions = null;
 			return;
+		}
 
-		ICollection<IAction> actions = selector.Selection.GetActions();
+		if (selector.Selection != oldSelection)
+		{
+			actions = selector.Selection.GetActions();
+			oldSelection = selector.Selection;
+		}
 
 		if (actions == null)
 			return;
 
-		ActionData data = new ActionData(wallet);
-
-
 		foreach (var actionBase in actions)
 		{
-			if (actionBase is Action<GameTypes> typedAction)
+			EditorGUI.BeginDisabledGroup(!actionBase.CanExecute(wallet));
+
+			if (actionBase is CasinoIdler.Action<GameTypes> typedAction)
 			{
-				//if(button for enum -> pass value from dropdown)
-				//EditorGUILayout.EnumPopup
-				//options for GameTypes
-				//
+				if (GUILayout.Button($"Type of buyable: {selectedGameTypeOptions.First()}"))
+				{
+					GameTypes t = selectedGameTypeOptions.First();
+					selectedGameTypeOptions.RemoveFirst();
+					selectedGameTypeOptions.AddLast(t);
+				}
+
+				if (GUILayout.Button(typedAction.Name))
+				{
+					typedAction.Execute(wallet, selectedGameTypeOptions.First());
+				}
 			}
 			else if (actionBase is Action action)
 			{
-				EditorGUI.BeginDisabledGroup(!action.CanExecute(data));
 
 				if (GUILayout.Button(action.Name))
 				{
-					action.Execute(data);
+					action.Execute(wallet);
 				}
-
-				EditorGUI.EndDisabledGroup();
 			}
+
+			EditorGUI.EndDisabledGroup();
 		}
 	}
 }

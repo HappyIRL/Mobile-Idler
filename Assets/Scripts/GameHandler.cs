@@ -59,9 +59,12 @@ public class GameHandler : MonoBehaviour
 
 	private GameData FetchGameData()
 	{
-		GameData data = new GameData();
-		data.CasinoData = casino.FetchData();
-		data.Wallet = playerWallet.Wallet;
+		GameData data = new GameData
+		{
+			CasinoData = casino.FetchData(),
+			Wallet = playerWallet.Wallet
+		};
+
 		return data;
 	}
 }

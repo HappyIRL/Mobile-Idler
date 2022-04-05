@@ -1,22 +1,28 @@
 using System;
 using System.Collections.Generic;
 using CasinoIdler;
-using Action = CasinoIdler.Action;
 
 
 public class Casino : ISelectable
 {
+	public System.Action Unselect { get; set; }
 	public IReadOnlyList<ISelectable> SubSelections => gameRooms;
+	public bool CanRemoveGameRoom => gameRooms.Count > 1;
 	public string Name => "Casino";
 
 	private List<GameRoom> gameRooms = new List<GameRoom>();
+	private IAction[] actions;
 	private uint productionRate;
 
 	private const uint BaseGameRoomCost = 5;
 
 	public Casino()
 	{
-		CreateGameRoom(null);
+		GameRoomData data = GetBaseGameRoomData();
+		data.IsTutorialRoom = true;
+
+		CreateGameRoom(data);
+		CreateCasinoActions();
 	}
 
 	public Casino(CasinoData data)
@@ -26,6 +32,7 @@ public class Casino : ISelectable
 			CreateGameRoom(roomData);
 		}
 
+		CreateCasinoActions();
 		RefreshProductionRate();
 	}
 
@@ -64,30 +71,37 @@ public class Casino : ISelectable
 		return data;
 	}
 
-	private void CreateGameRoom(GameRoomData? data)
+	private void CreateGameRoom(GameRoomData data)
 	{
-		GameRoom gameRoom;
+		GameRoom gameRoom = new GameRoom(data);
 
-		if (data != null)
-			gameRoom = new GameRoom(data.Value);
-		else
-			gameRoom = new GameRoom(GetBaseGameRoomData());
-
-		IAction[] sellAction = {new SellGameRoomAction(this, "Sell GameRoom") };
+		IAction[] sellAction = {new SellGameRoomAction(this, gameRoom,"Sell GameRoom") };
 		gameRoom.InitActions(sellAction);
 
 		gameRooms.Add(gameRoom);
 	}
 
-	public void CreateNewGameRoom()
+	private void CreateCasinoActions()
 	{
-		CreateGameRoom(null);
+		actions = new IAction[] { new PurchaseGameRoomAction("Buy GameRoom", BaseGameRoomCost, this) };
+	}
+
+	public void CreateNewGameRoom(GameTypes type)
+	{
+		GameRoomData data = GetBaseGameRoomData();
+		data.GameType = type;
+
+		CreateGameRoom(data);
 	}
 
 	private GameRoomData GetBaseGameRoomData()
 	{
-		GameRoomData data = new GameRoomData();
-		data.Cost = BaseGameRoomCost;
+		GameRoomData data = new GameRoomData
+		{
+			Cost = BaseGameRoomCost,
+			GameType = GameTypes.Roulette,
+			IsTutorialRoom = false
+		};
 
 		return data;
 	}
@@ -95,12 +109,13 @@ public class Casino : ISelectable
 	public uint RemoveGameRoom(GameRoom gameRoom)
 	{
 		gameRooms.Remove(gameRoom);
-		return 5;
+		gameRoom.Unselect?.Invoke();
+		return gameRoom.GameRoomValue;
 	}
 
 	public ICollection<IAction> GetActions()
 	{
-		return new IAction[] { new PurchaseGameRoomAction("Purchase GameRoom", BaseGameRoomCost, this)};
+		return actions;
 	}
 }
 

@@ -1,24 +1,27 @@
 using System;
+using UnityEngine;
+using Zenject;
 
 namespace CasinoIdler
 {
 	public interface IAction
 	{
-		public abstract string Name { get;}
+		public abstract string Name { get; }
+		public abstract bool CanExecute(PlayerWallet wallet);
 	}
 
 	public abstract class Action : IAction
 	{
 		public virtual string Name { get; protected set; }
-		public abstract bool CanExecute(ActionData data);
-		public abstract void Execute(ActionData data);
+		public abstract bool CanExecute(PlayerWallet wallet);
+		public abstract void Execute(PlayerWallet wallet);
 	}
 
 	public abstract class Action<T> : IAction
 	{
 		public virtual string Name { get; protected set; }
-		public abstract bool CanExecute(ActionData data, T param);
-		public abstract void Execute(ActionData data, T param);
+		public abstract bool CanExecute(PlayerWallet wallet);
+		public abstract void Execute(PlayerWallet wallet, T param);
 	}
 
 	public class PurchaseGameRoomAction : PurchaseAction<GameTypes>
@@ -30,41 +33,76 @@ namespace CasinoIdler
 			this.casino = casino;
 		}
 
-		protected override void Purchase()
+		protected override void Purchase(GameTypes type)
 		{
-			casino.CreateNewGameRoom();
+			casino.CreateNewGameRoom(type);
 		}
 	}
 
-	public interface IGameRoomUser
+	public abstract class SellAction : Action
 	{
-		public void SetGameRoom(GameRoom room);
-	}
+		public sealed override string Name { get; protected set; }
 
-	public class SellGameRoomAction : Action, IGameRoomUser
-	{
-		private Casino casino;
-		private GameRoom room;
-
-		public SellGameRoomAction(Casino casino, string name)
+		protected SellAction(string name)
 		{
-			this.casino = casino;
 			Name = name;
 		}
 
-		public override bool CanExecute(ActionData data)
+		protected abstract uint Sell();
+		protected abstract bool CanSell();
+
+		public override bool CanExecute(PlayerWallet wallet)
 		{
-			return true;
+			return CanSell();
 		}
 
-		public void SetGameRoom(GameRoom room)
+		public override void Execute(PlayerWallet wallet)
 		{
-			this.room = room;
+			wallet.Deposit(Sell());
+		}
+	}
+
+	public class SellGameRoomAction : SellAction
+	{
+		private readonly Casino casino;
+		private readonly GameRoom gameRoom;
+
+		public SellGameRoomAction(Casino casino, GameRoom gameRoom, string name) : base(name)
+		{
+			this.casino = casino;
+			this.gameRoom = gameRoom;
 		}
 
-		public override void Execute(ActionData data)
+		protected override uint Sell()
 		{
-			data.Wallet.Deposit(casino.RemoveGameRoom(room));
+			return casino.RemoveGameRoom(gameRoom);
+		}
+
+		protected override bool CanSell()
+		{
+			return casino.CanRemoveGameRoom;
+		}
+	}
+
+	public class SellGameSlotAction : SellAction
+	{
+		private readonly GameRoom gameRoom;
+		private readonly GameSlot gameSlot;
+
+		public SellGameSlotAction(GameRoom gameRoom, GameSlot gameSlot, string name) : base(name)
+		{
+			this.gameRoom = gameRoom;
+			this.gameSlot = gameSlot;
+		}
+
+		protected override uint Sell()
+		{
+			return gameRoom.RemoveGameSlot(gameSlot);
+		}
+
+		protected override bool CanSell()
+		{
+			return gameRoom.CanRemoveGameSlot;
 		}
 	}
 
@@ -75,30 +113,33 @@ namespace CasinoIdler
 
 		protected PurchaseAction(string name, uint cost)
 		{
-			Name = $"{cost}$ {name}";
 			this.cost = cost;
+			Name = $"{name}: {cost}$";
 		}
 
 		protected abstract void Purchase();
 
-		public override bool CanExecute(ActionData data)
+		protected abstract bool CanPurchase();
+
+		public override bool CanExecute(PlayerWallet wallet)
 		{
-			return data.Wallet.CheckWalletFor(cost);
+			return CanPurchase() && wallet.CheckWalletFor(cost);
 		}
 
-		public override void Execute(ActionData data)
+		public override void Execute(PlayerWallet wallet)
 		{
-			data.Wallet.Withdraw(cost);
+			wallet.Withdraw(cost);
 			Purchase();
 		}
 	}
 
-	public class PurchaseGameSlotAction : PurchaseAction, IGameRoomUser
+	public class PurchaseGameSlotAction : PurchaseAction
 	{
-		private GameRoom gameRoom;
+		private readonly GameRoom gameRoom;
 
-		public PurchaseGameSlotAction(string name, uint cost) : base(name, cost)
+		public PurchaseGameSlotAction(string name, uint cost, GameRoom room) : base(name, cost)
 		{
+			gameRoom = room;
 		}
 
 		protected override void Purchase()
@@ -106,9 +147,9 @@ namespace CasinoIdler
 			gameRoom.CreateNewGameSlot();
 		}
 
-		public void SetGameRoom(GameRoom room)
+		protected override bool CanPurchase()
 		{
-			this.gameRoom = room;
+			return gameRoom.CanAddGameSlot;
 		}
 	}
 
@@ -119,37 +160,31 @@ namespace CasinoIdler
 
 		protected PurchaseAction(string name, uint cost)
 		{
-			Name = $"{cost}$ {name}";
+			Name = $"{name}: {cost}$";
 			this.cost = cost;
 		}
 
-		protected abstract void Purchase();
+		protected abstract void Purchase(T type);
 
-		public override bool CanExecute(ActionData data, T param)
+		public override bool CanExecute(PlayerWallet wallet)
 		{
-			return data.Wallet.CheckWalletFor(cost);
+			return wallet.CheckWalletFor(cost);
 		}
 
-		public override void Execute(ActionData data, T param)
+		public override void Execute(PlayerWallet wallet, T param)
 		{
-			data.Wallet.Withdraw(cost);
-			Purchase();
-		}
-	}
-
-	public class ActionData
-	{
-		public PlayerWallet Wallet { get;}
-
-		public ActionData(PlayerWallet w)
-		{
-			Wallet = w;
+			wallet.Withdraw(cost);
+			Purchase(param);
 		}
 	}
 
-	public struct ActionDisplayData
-	{
-		public string Name;
-		public bool IsDisplayable;
-	}
+	//public class ActionData
+	//{
+	//	public PlayerWallet Wallet { get;}
+
+	//	public ActionData(PlayerWallet w)
+	//	{
+	//		Wallet = w;
+	//	}
+	//}
 }

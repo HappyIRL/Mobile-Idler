@@ -1,19 +1,26 @@
 using System;
 using System.Collections.Generic;
 using CasinoIdler;
-using ModestTree;
-using Action = CasinoIdler.Action;
+using UnityEngine;
 
 public class GameRoom : ISelectable
 {
+	public System.Action Unselect { get; set; }
 	public IReadOnlyList<ISelectable> SubSelections => gameSlots;
-	public string Name => "GameRoom";
+	public bool CanAddGameSlot => gameSlots.Count < maxGameSlots;
+	public bool CanRemoveGameSlot => gameSlots.Count > 1;
+
+
+	public uint GameRoomValue { get; private set; }
+
+	public string Name => $"{gameType}Room";
 
 	public uint ProductionRate { get; private set; }
 
-	private SerializedVector3 position;
-	private List<GameSlot> gameSlots = new List<GameSlot>();
+	private readonly SerializedVector3 position;
+	private readonly List<GameSlot> gameSlots = new List<GameSlot>();
 	private List<IAction> actions;
+	private uint maxGameSlots = 4;
 	private GameTypes gameType;
 
 	private const uint BaseGameSlotCost = 5;
@@ -24,15 +31,18 @@ public class GameRoom : ISelectable
 		position = data.Position;
 		gameType = data.GameType;
 
-		if (data.GameSlotsData == null)
+		if (data.IsTutorialRoom)
 		{
 			CreateGameSlot(null);
 			return;
 		}
 
-		foreach (var slotData in data.GameSlotsData)
+		if (data.GameSlotsData != null)
 		{
-			CreateGameSlot(slotData);
+			foreach (var slotData in data.GameSlotsData)
+			{
+				CreateGameSlot(slotData);
+			}
 		}
 	}
 
@@ -40,6 +50,7 @@ public class GameRoom : ISelectable
 	{
 		CreateGameSlot(null);
 	}
+
 
 	public ICollection<IAction> GetActions()
 	{
@@ -63,18 +74,20 @@ public class GameRoom : ISelectable
 		return data;
 	}
 
-	public void InitActions(IAction[] actions)
+	public void InitActions(IAction[] toAddAction)
 	{
-		this.actions = new List<IAction>();
+		actions = new List<IAction>();
 
-		this.actions.AddRange(actions);
-		this.actions.Add(new PurchaseGameSlotAction("Add GameSlot", BaseGameSlotCost));
+		actions.AddRange(toAddAction);
+		actions.Add(new PurchaseGameSlotAction("Buy GameSlot", BaseGameSlotCost, this));
+	}
 
-		for (int i = 0; i < actions.Length; i++)
-		{
-			if (actions[i] is IGameRoomUser user)
-				user.SetGameRoom(this);
-		}
+	public uint RemoveGameSlot(GameSlot gameSlot)
+	{
+		gameSlots.Remove(gameSlot);
+		gameSlot.Unselect?.Invoke();
+		ProductionRate -= gameSlot.ProductionRate;
+		return gameSlot.GetSellValue();
 	}
 
 	private void CreateGameSlot(GameSlotData? data)
@@ -88,18 +101,27 @@ public class GameRoom : ISelectable
 		else
 		{
 			gameSlot = new GameSlot(GetBaseGameSlotData());
-			ProductionRate += BaseGameSlotProduction;
 		}
 
+		ProductionRate += gameSlot.ProductionRate;
+
+		IAction[] sellAction = { new SellGameSlotAction(this, gameSlot, "Sell GameSlot") };
+		gameSlot.InitActions(sellAction);
+
+		GameRoomValue += gameSlot.GetSellValue();
 		gameSlots.Add(gameSlot);
 	}
 
 	private GameSlotData GetBaseGameSlotData()
 	{
-		GameSlotData data = new GameSlotData();
-		data.Level = 1;
-		data.Cost = BaseGameSlotCost;
-		data.Types = gameType;
+		GameSlotData data = new GameSlotData
+		{
+			Level = 1,
+			Cost = BaseGameSlotCost,
+			Types = gameType,
+			ProductionRate = BaseGameSlotProduction
+		};
+
 		return data;
 	}
 }
@@ -110,5 +132,6 @@ public struct GameRoomData
 	public SerializedVector3 Position;
 	public GameSlotData[] GameSlotsData;
 	public GameTypes GameType;
+	public bool IsTutorialRoom;
 	public uint Cost;
 }
