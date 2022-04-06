@@ -17,6 +17,7 @@ public class OnGUISceneView : MonoBehaviour
 	private LinkedList<GameTypes> selectedGameTypeOptions = new LinkedList<GameTypes>((GameTypes[])Enum.GetValues(typeof(GameTypes)));
 	private bool isInitComplete;
 	private bool selectableToggle = true;
+	private Vector2 scrollPosition;
 
 	public void Init( PlayerWallet wallet, PrototypeSelector selector, ISelectable rootSelectable)
 	{
@@ -31,11 +32,22 @@ public class OnGUISceneView : MonoBehaviour
 		if (!isInitComplete)
 			return;
 
+		GUILayout.BeginHorizontal();
+		GUILayout.BeginVertical();
+		scrollPosition = GUILayout.BeginScrollView(scrollPosition);
 		GUIDrawSelected(rootSelectable);
-		EditorGUILayout.BeginHorizontal();
+		GUILayout.EndVertical();
+		GUILayout.EndScrollView();
+
+		GUILayout.BeginVertical();
 		GUIDrawActions();
-		EditorGUILayout.EndHorizontal();
+		GUILayout.EndVertical();
+
+		GUILayout.BeginVertical();
 		GUIDrawCash();
+		GUILayout.EndVertical();
+
+		GUILayout.EndHorizontal();
 	}
 
 	private void GUIDrawSelected(ISelectable selectable)
