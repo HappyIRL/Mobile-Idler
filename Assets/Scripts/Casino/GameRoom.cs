@@ -10,12 +10,7 @@ public class GameRoom : ISelectable
 	public bool CanAddGameSlot => gameSlots.Count < maxGameSlots;
 	public bool CanRemoveGameSlot => gameSlots.Count > 1;
 
-
-	public uint GameRoomValue { get; private set; }
-
 	public string Name => $"{gameType}Room";
-
-	public uint ProductionRate { get; private set; }
 
 	private readonly SerializedVector3 position;
 	private readonly List<GameSlot> gameSlots = new List<GameSlot>();
@@ -33,7 +28,7 @@ public class GameRoom : ISelectable
 
 		if (data.IsTutorialRoom)
 		{
-			CreateGameSlot(null);
+			CreateGameSlot(GetBaseGameSlotData());
 			return;
 		}
 
@@ -48,7 +43,7 @@ public class GameRoom : ISelectable
 
 	public void CreateNewGameSlot()
 	{
-		CreateGameSlot(null);
+		CreateGameSlot(GetBaseGameSlotData());
 	}
 
 
@@ -79,36 +74,36 @@ public class GameRoom : ISelectable
 		actions = new List<IAction>();
 
 		actions.AddRange(toAddAction);
-		actions.Add(new PurchaseGameSlotAction("Buy GameSlot", BaseGameSlotCost, this));
+		actions.Add(new PurchaseGameSlotAction(this, "Buy GameSlot", BaseGameSlotCost));
 	}
 
 	public uint RemoveGameSlot(GameSlot gameSlot)
 	{
 		gameSlots.Remove(gameSlot);
 		gameSlot.Unselect?.Invoke();
-		ProductionRate -= gameSlot.ProductionRate;
-		return gameSlot.GetSellValue();
+
+		return BaseGameSlotCost;
 	}
 
-	private void CreateGameSlot(GameSlotData? data)
+	public uint GetProductionRate()
 	{
-		GameSlot gameSlot;
+		uint value = 0;
 
-		if (data != null)
+		for (int i = 0; i < gameSlots.Count; i++)
 		{
-			gameSlot = new GameSlot(data.Value);
-		}
-		else
-		{
-			gameSlot = new GameSlot(GetBaseGameSlotData());
+			value += gameSlots[i].ProductionRate;
 		}
 
-		ProductionRate += gameSlot.ProductionRate;
+		return value;
+	}
+
+	private void CreateGameSlot(GameSlotData data)
+	{
+		GameSlot gameSlot = new GameSlot(data);
 
 		IAction[] sellAction = { new SellGameSlotAction(this, gameSlot, "Sell GameSlot") };
 		gameSlot.InitActions(sellAction);
 
-		GameRoomValue += gameSlot.GetSellValue();
 		gameSlots.Add(gameSlot);
 	}
 
@@ -117,7 +112,7 @@ public class GameRoom : ISelectable
 		GameSlotData data = new GameSlotData
 		{
 			Level = 1,
-			Cost = BaseGameSlotCost,
+			UpgradeCost = BaseGameSlotCost,
 			Types = gameType,
 			ProductionRate = BaseGameSlotProduction
 		};
@@ -133,5 +128,4 @@ public struct GameRoomData
 	public GameSlotData[] GameSlotsData;
 	public GameTypes GameType;
 	public bool IsTutorialRoom;
-	public uint Cost;
 }

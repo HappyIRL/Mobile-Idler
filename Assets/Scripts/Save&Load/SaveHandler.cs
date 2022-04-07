@@ -1,47 +1,32 @@
-using System.IO;
 using UnityEngine;
 
-//move logic of the path down to the saver
 public class SaveHandler : MonoBehaviour
 {
 	[Zenject.Inject] private GameHandler gameHandler;
-
-	private const string SaveName = "SaveFile.data";
 
 	private void Start()
 	{
 		Load();
 	}
 
-	private string GetFullSavePath()
-	{
-		return Application.persistentDataPath + SaveName;
-	}
-
 	[NaughtyAttributes.Button("Save")]
 	public void Save()
 	{
 		Saver saver = new Saver(gameHandler);
-		saver.SaveTo(GetFullSavePath());
+		saver.Save();
 	}
 
 	[NaughtyAttributes.Button("Load")]
 	public void Load()
 	{
 		Saver saver = new Saver(gameHandler);
-
-		if (!SaveFileExists())
-		{
-			Debug.Log("No Savefile found -> New Game.");
-			saver.LoadNew();
-			return;
-		}
-
-		saver.LoadFrom(GetFullSavePath());
+		saver.Load();
 	}
 
-	private bool SaveFileExists()
+	[NaughtyAttributes.Button("Load New")]
+	public void LoadNew()
 	{
-		return File.Exists(GetFullSavePath());
+		Saver saver = new Saver(gameHandler);
+		saver.LoadNew();
 	}
 }

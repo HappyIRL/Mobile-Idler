@@ -1,26 +1,35 @@
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using UnityEngine;
 
 public class Saver
 {
 	private readonly GameHandler gameHandler;
+	private const string SaveName = "SaveFile.data";
 
 	public Saver(GameHandler gameHandler)
 	{
 		this.gameHandler = gameHandler;
 	}
 
-	public void SaveTo(string path)
+	public void Save()
 	{
-		var stream = File.Open(path, FileMode.OpenOrCreate);
+		var stream = File.Open(GetFullSavePath(), FileMode.OpenOrCreate);
 		BinaryFormatter formatter = new BinaryFormatter();
 		formatter.Serialize(stream, gameHandler.GetGameData());
 		stream.Close();
 	}
 
-	public void LoadFrom(string path)
+	public void Load()
 	{
-		var stream = File.OpenRead(path);
+		if (!SaveFileExists())
+		{
+			Debug.Log("No Savefile found -> New Game.");
+			LoadNew();
+			return;
+		}
+
+		var stream = File.OpenRead(GetFullSavePath());
 		BinaryFormatter formatter = new BinaryFormatter();
 
 		GameData? gameData = formatter.Deserialize(stream) as GameData?;
@@ -32,5 +41,15 @@ public class Saver
 	public void LoadNew()
 	{
 		gameHandler.SetGameData(null);
+	}
+
+	private bool SaveFileExists()
+	{
+		return File.Exists(GetFullSavePath());
+	}
+
+	private string GetFullSavePath()
+	{
+		return Application.persistentDataPath + SaveName;
 	}
 }

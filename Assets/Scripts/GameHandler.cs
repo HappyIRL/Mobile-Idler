@@ -1,24 +1,27 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using Zenject;
 
 public class GameHandler : MonoBehaviour
 {
-	[Zenject.Inject] private OnGUISceneView sceneView;
-	[Zenject.Inject] private PrototypeSelector selector;
+	[Inject] private OnGUISceneView sceneView;
+	[Inject] private PrototypeSelector selector;
 
 	public Action Tick;
 
 	private const float IdleTickDuration = 1f;
+	private const string CurrentVersion = "1.0";
 
 	private Casino casino;
 	private Cashier cashier;
 	private PlayerWallet playerWallet;
 	private GameState gameState = GameState.Running;
+	private Coroutine idleTick;
 
 	public void SetGameData(GameData? gameData)
 	{
-		if (gameData == null)
+		if (!(gameData is { Version: CurrentVersion }))
 		{
 			OnNewSaveGame();
 			return;
@@ -44,7 +47,7 @@ public class GameHandler : MonoBehaviour
 		playerWallet = new PlayerWallet(walletAmount);
 		cashier = new Cashier(casino, playerWallet);
 		sceneView.Init(playerWallet, selector, casino);
-		StartCoroutine(IdleTick());
+		idleTick ??= StartCoroutine(IdleTick());
 	}
 
 	private IEnumerator IdleTick()
@@ -62,7 +65,8 @@ public class GameHandler : MonoBehaviour
 		GameData data = new GameData
 		{
 			CasinoData = casino.FetchData(),
-			Wallet = playerWallet.Wallet
+			Wallet = playerWallet.Wallet,
+			Version = CurrentVersion
 		};
 
 		return data;
@@ -73,6 +77,7 @@ public class GameHandler : MonoBehaviour
 public struct GameData
 {
 	public CasinoData CasinoData;
+	public string Version;
 	public ulong Wallet;
 }
 

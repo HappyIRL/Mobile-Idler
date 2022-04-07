@@ -11,15 +11,12 @@ public class OnGUISceneView : MonoBehaviour
 	private PrototypeSelector selector;
 	private PlayerWallet wallet;
 	private ISelectable rootSelectable;
-
-	private ISelectable oldSelection;
 	private ICollection<IAction> actions;
 	private LinkedList<GameTypes> selectedGameTypeOptions = new LinkedList<GameTypes>((GameTypes[])Enum.GetValues(typeof(GameTypes)));
 	private bool isInitComplete;
-	private bool selectableToggle = true;
 	private Vector2 scrollPosition;
 
-	public void Init( PlayerWallet wallet, PrototypeSelector selector, ISelectable rootSelectable)
+	public void Init(PlayerWallet wallet, PrototypeSelector selector, ISelectable rootSelectable)
 	{
 		this.selector = selector;
 		this.wallet = wallet;
@@ -54,7 +51,7 @@ public class OnGUISceneView : MonoBehaviour
 	{
 		if (GUILayout.Button(selectable.Name))
 		{
-			selector.SetSelectable(selectable);
+			selector.SetSelection(selectable);
 		}
 
 		if (selectable.SubSelections == null)
@@ -79,10 +76,9 @@ public class OnGUISceneView : MonoBehaviour
 			return;
 		}
 
-		if (selector.Selection != oldSelection)
+		if (selector.Selection != selector.OldSelection)
 		{
 			actions = selector.Selection.GetActions();
-			oldSelection = selector.Selection;
 		}
 
 		if (actions == null)

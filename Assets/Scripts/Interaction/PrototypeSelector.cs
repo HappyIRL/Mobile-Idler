@@ -4,20 +4,25 @@ using CasinoIdler;
 public class PrototypeSelector : PlayerInputEventsBehaviour
 {
 	public ISelectable Selection { get; private set; }
+	public ISelectable OldSelection { get; private set; }
 
-	public void SetSelectable(ISelectable selectable)
+	public void SetSelection(ISelectable selectable)
 	{
 		if (Selection != null)
 			Selection.Unselect -= OnUnselect;
 
+		if (selectable != null)
+		{
+			selectable.Unselect += OnUnselect;
+		}
+
+		OldSelection = Selection;
 		Selection = selectable;
-		selectable.Unselect += OnUnselect;
 	}
 
 	private void OnUnselect()
 	{
-		Selection.Unselect -= OnUnselect;
-		Selection = null;
+		SetSelection(null);
 	}
 }
 

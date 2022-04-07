@@ -6,43 +6,46 @@ using CasinoIdler;
 public class Casino : ISelectable
 {
 	public System.Action Unselect { get; set; }
-	public IReadOnlyList<ISelectable> SubSelections => gameRooms;
-	public bool CanRemoveGameRoom => gameRooms.Count > 1;
+	public IReadOnlyList<ISelectable> SubSelections => gameFloors;
 	public string Name => "Casino";
+	public bool CanRemoveGameRoom => gameFloors.Count > 1;
 
-	private List<GameRoom> gameRooms = new List<GameRoom>();
+
+	private List<GameFloor> gameFloors = new List<GameFloor>();
 	private IAction[] actions;
 	private uint productionRate;
-
-	private const uint BaseGameRoomCost = 5;
+	private const uint BaseGameFloorCost = 5;
 
 	public Casino()
 	{
-		GameRoomData data = GetBaseGameRoomData();
-		data.IsTutorialRoom = true;
-
-		CreateGameRoom(data);
+		CreateGameFloor(GetBaseGameFloorData(true));
 		CreateCasinoActions();
 	}
 
 	public Casino(CasinoData data)
 	{
-		foreach (var roomData in data.GameRoomsData)
+		foreach (var floorData in data.GameFloorsData)
 		{
-			CreateGameRoom(roomData);
+			CreateGameFloor(floorData);
 		}
 
 		CreateCasinoActions();
 		RefreshProductionRate();
 	}
 
+	private uint GetProductionRate()
+	{
+		RefreshProductionRate();
+		return productionRate;
+	}
+
 	private void RefreshProductionRate()
 	{
 		uint result = 0;
 
-		foreach (var gameRoom in gameRooms)
+		foreach (var gameFloor in gameFloors)
 		{
-			result += gameRoom.ProductionRate;
+			result += gameFloor.GetProductionRate();
 		}
 
 		productionRate = result;
@@ -50,79 +53,75 @@ public class Casino : ISelectable
 
 	public uint GetMoneyLastIdleTick()
 	{
-		RefreshProductionRate();
-		return productionRate;
+		return GetProductionRate();
 	}
 
 	public CasinoData FetchData()
 	{
 		CasinoData data = new CasinoData();
 
-		GameRoomData[] gameRoomsData = new GameRoomData[gameRooms.Count];
+		GameFloorData[] gameFloorsData = new GameFloorData[gameFloors.Count];
 
-		for (int i = 0; i < gameRooms.Count; i++)
+		for (int i = 0; i < gameFloorsData.Length; i++)
 		{
-			gameRoomsData[i] = gameRooms[i].FetchData();
+			gameFloorsData[i] = gameFloors[i].FetchData();
 		}
 
-		data.GameRoomsData = gameRoomsData;
-		data.ProductionRate = productionRate;
+		data.GameFloorsData = gameFloorsData;
+		data.ProductionRate = GetProductionRate();
 
 		return data;
 	}
-
-	private void CreateGameRoom(GameRoomData data)
+	public ICollection<IAction> GetActions()
 	{
-		GameRoom gameRoom = new GameRoom(data);
+		return actions;
+	}
 
-		IAction[] sellAction = {new SellGameRoomAction(this, gameRoom,"Sell GameRoom") };
-		gameRoom.InitActions(sellAction);
+	public uint RemoveGameFloor(GameFloor gameFloor)
+	{
+		gameFloors.Remove(gameFloor);
+		gameFloor.Unselect?.Invoke();
+		return BaseGameFloorCost;
+	}
 
-		gameRooms.Add(gameRoom);
+	private void CreateGameFloor(GameFloorData data)
+	{
+		GameFloor gameFloor = new GameFloor(data);
+
+		IAction[] floorActions = { new SellGameFloorAction(this, gameFloor, "Sell GameFloor") };
+		gameFloor.InitActions(floorActions);
+
+		gameFloors.Add(gameFloor);
+	}
+
+	public void CreateNewGameFloor()
+	{
+		GameFloorData data = GetBaseGameFloorData(false);
+
+		CreateGameFloor(data);
 	}
 
 	private void CreateCasinoActions()
 	{
-		actions = new IAction[] { new PurchaseGameRoomAction("Buy GameRoom", BaseGameRoomCost, this) };
+		actions = new[] { new PurchaseGameFloorAction(this, "Buy GameFloor", BaseGameFloorCost) };
 	}
 
-	public void CreateNewGameRoom(GameTypes type)
+	private GameFloorData GetBaseGameFloorData(bool isTutorial)
 	{
-		GameRoomData data = GetBaseGameRoomData();
-		data.GameType = type;
-
-		CreateGameRoom(data);
-	}
-
-	private GameRoomData GetBaseGameRoomData()
-	{
-		GameRoomData data = new GameRoomData
+		GameFloorData data = new GameFloorData
 		{
-			Cost = BaseGameRoomCost,
-			GameType = GameTypes.Roulette,
-			IsTutorialRoom = false
+			Cost = BaseGameFloorCost,
+			IsTutorialFloor = isTutorial
 		};
 
 		return data;
-	}
-
-	public uint RemoveGameRoom(GameRoom gameRoom)
-	{
-		gameRooms.Remove(gameRoom);
-		gameRoom.Unselect?.Invoke();
-		return gameRoom.GameRoomValue;
-	}
-
-	public ICollection<IAction> GetActions()
-	{
-		return actions;
 	}
 }
 
 [Serializable]
 public struct CasinoData
 {
-	public GameRoomData[] GameRoomsData;
+	public GameFloorData[] GameFloorsData;
 	public uint ProductionRate;
 }
 

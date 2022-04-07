@@ -20,7 +20,7 @@ public class GameSlot : ISelectable
 	{
 		type = data.Types;
 		level = data.Level;
-		cost = data.Cost;
+		cost = data.UpgradeCost;
 		ProductionRate = data.ProductionRate;
 	}
 
@@ -30,7 +30,7 @@ public class GameSlot : ISelectable
 		{
 			Types = type,
 			Level = level,
-			Cost = cost,
+			UpgradeCost = cost,
 			ProductionRate = ProductionRate
 		};
 
@@ -59,6 +59,6 @@ public struct GameSlotData
 {
 	public GameTypes Types;
 	public int Level;
-	public uint Cost;
+	public uint UpgradeCost;
 	public uint ProductionRate;
 }
