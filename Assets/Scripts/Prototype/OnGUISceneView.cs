@@ -21,6 +21,7 @@ public class OnGUISceneView : MonoBehaviour
 		this.selector = selector;
 		this.wallet = wallet;
 		this.rootSelectable = rootSelectable;
+		selector.SetSelection(rootSelectable);
 		isInitComplete = true;
 	}
 
@@ -32,7 +33,7 @@ public class OnGUISceneView : MonoBehaviour
 		GUILayout.BeginHorizontal();
 		GUILayout.BeginVertical();
 		scrollPosition = GUILayout.BeginScrollView(scrollPosition);
-		GUIDrawSelected(rootSelectable);
+		GUIDrawSelection(rootSelectable);
 		GUILayout.EndVertical();
 		GUILayout.EndScrollView();
 
@@ -47,7 +48,7 @@ public class OnGUISceneView : MonoBehaviour
 		GUILayout.EndHorizontal();
 	}
 
-	private void GUIDrawSelected(ISelectable selectable)
+	private void GUIDrawSelection(ISelectable selectable)
 	{
 		if (GUILayout.Button(selectable.Name))
 		{
@@ -59,7 +60,7 @@ public class OnGUISceneView : MonoBehaviour
 
 		for (int i = 0; i < selectable.SubSelections.Count; i++)
 		{
-			GUIDrawSelected(selectable.SubSelections[i]);
+			GUIDrawSelection(selectable.SubSelections[i]);
 		}
 	}
 
@@ -102,6 +103,7 @@ public class OnGUISceneView : MonoBehaviour
 					typedAction.Execute(wallet, selectedGameTypeOptions.First());
 				}
 			}
+
 			else if (actionBase is Action action)
 			{
 

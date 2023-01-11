@@ -6,7 +6,6 @@ public class GameFloor : ISelectable
 {
 	public string Name => "Floor";
 	public System.Action Unselect { get; set; }
-	public bool CanRemoveGameRoom => gameRooms.Count > 1;
 	public IReadOnlyList<ISelectable> SubSelections => gameRooms;
 
 
@@ -94,9 +93,9 @@ public class GameFloor : ISelectable
 	{
 		GameRoom gameRoom = new GameRoom(data);
 
-		IAction[] roomActions = { new SellGameRoomAction(this, gameRoom, "Sell GameRoom") };
+		IAction[] gameRoomActions = { new SellGameRoomAction(this, gameRoom, "Sell GameRoom", 5) };
 
-		gameRoom.InitActions(roomActions);
+		gameRoom.InitActions(gameRoomActions);
 		gameRooms.Add(gameRoom);
 	}
 

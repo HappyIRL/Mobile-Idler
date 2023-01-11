@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CasinoIdler;
+using UnityEngine;
 
 
 public class Casino : ISelectable
@@ -8,7 +9,6 @@ public class Casino : ISelectable
 	public System.Action Unselect { get; set; }
 	public IReadOnlyList<ISelectable> SubSelections => gameFloors;
 	public string Name => "Casino";
-	public bool CanRemoveGameRoom => gameFloors.Count > 1;
 
 
 	private List<GameFloor> gameFloors = new List<GameFloor>();
@@ -88,8 +88,8 @@ public class Casino : ISelectable
 	{
 		GameFloor gameFloor = new GameFloor(data);
 
-		IAction[] floorActions = { new SellGameFloorAction(this, gameFloor, "Sell GameFloor") };
-		gameFloor.InitActions(floorActions);
+		IAction[] gameFloorActions = { new SellGameFloorAction(this, gameFloor, "Sell GameFloor", 5) };
+		gameFloor.InitActions(gameFloorActions);
 
 		gameFloors.Add(gameFloor);
 	}

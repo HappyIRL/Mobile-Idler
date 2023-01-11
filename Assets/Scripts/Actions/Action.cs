@@ -95,17 +95,19 @@ namespace CasinoIdler
 	{
 		public sealed override string Name { get; protected set; }
 
-		protected SellAction(string name)
+		protected uint value;
+
+		protected SellAction(string name, uint defaultValue)
 		{
-			Name = name;
+			Name = $"{name}: {defaultValue}$";
+			value = defaultValue;
 		}
 
 		protected abstract uint Sell();
-		protected abstract bool CanSell();
 
 		public override bool CanExecute(PlayerWallet wallet)
 		{
-			return CanSell();
+			return true;
 		}
 
 		public override void Execute(PlayerWallet wallet)
@@ -119,7 +121,7 @@ namespace CasinoIdler
 		private readonly Casino casino;
 		private readonly GameFloor gameFloor;
 
-		public SellGameFloorAction(Casino casino, GameFloor gameFloor, string name) : base(name)
+		public SellGameFloorAction(Casino casino, GameFloor gameFloor, string name, uint defaultValue) : base(name, defaultValue)
 		{
 			this.casino = casino;
 			this.gameFloor = gameFloor;
@@ -129,11 +131,6 @@ namespace CasinoIdler
 		{
 			return casino.RemoveGameFloor(gameFloor);
 		}
-
-		protected override bool CanSell()
-		{
-			return casino.CanRemoveGameRoom;
-		}
 	}
 
 	public class SellGameRoomAction : SellAction
@@ -141,7 +138,7 @@ namespace CasinoIdler
 		private readonly GameFloor gameFloor;
 		private readonly GameRoom gameRoom;
 
-		public SellGameRoomAction(GameFloor gameFloor, GameRoom gameRoom, string name) : base(name)
+		public SellGameRoomAction(GameFloor gameFloor, GameRoom gameRoom, string name, uint defaultValue) : base(name, defaultValue)
 		{
 			this.gameFloor = gameFloor;
 			this.gameRoom = gameRoom;
@@ -151,11 +148,6 @@ namespace CasinoIdler
 		{
 			return gameFloor.RemoveGameRoom(gameRoom);
 		}
-
-		protected override bool CanSell()
-		{
-			return gameFloor.CanRemoveGameRoom;
-		}
 	}
 
 	public class SellGameSlotAction : SellAction
@@ -163,7 +155,7 @@ namespace CasinoIdler
 		private readonly GameRoom gameRoom;
 		private readonly GameSlot gameSlot;
 
-		public SellGameSlotAction(GameRoom gameRoom, GameSlot gameSlot, string name) : base(name)
+		public SellGameSlotAction(GameRoom gameRoom, GameSlot gameSlot, string name, uint defaultValue) : base(name, defaultValue)
 		{
 			this.gameRoom = gameRoom;
 			this.gameSlot = gameSlot;
@@ -172,11 +164,6 @@ namespace CasinoIdler
 		protected override uint Sell()
 		{
 			return gameRoom.RemoveGameSlot(gameSlot);
-		}
-
-		protected override bool CanSell()
-		{
-			return gameRoom.CanRemoveGameSlot;
 		}
 	}
 
@@ -225,4 +212,61 @@ namespace CasinoIdler
 			return true;
 		}
 	}
+
+	public abstract class UpgradeAction : Action
+	{
+		public sealed override string Name { get; protected set; }
+
+		protected readonly string originalName;
+
+		protected UpgradeAction(string name, uint defaultUpgradeCost)
+		{
+			originalName = name;
+			Name = $"{originalName}: {defaultUpgradeCost}$";
+		}
+
+		protected abstract void Upgrade();
+
+		protected abstract bool CanUpgrade();
+
+		protected abstract uint GetCost();
+
+		public override bool CanExecute(PlayerWallet wallet)
+		{
+			return CanUpgrade() && wallet.CheckWalletFor(GetCost());
+		}
+
+		public override void Execute(PlayerWallet wallet)
+		{
+			wallet.Withdraw(GetCost());
+			Upgrade();
+		}
+	}
+
+	public class GameSlotUpgradeAction : UpgradeAction
+	{
+		private readonly GameSlot gameSlot;
+
+		public GameSlotUpgradeAction(GameSlot gameSlot, string name, uint defaultUpgradeCost) : base(name, defaultUpgradeCost)
+		{
+			this.gameSlot = gameSlot;
+		}
+
+		protected override void Upgrade()
+		{
+			gameSlot.Upgrade();
+			Name = $"{originalName}: {GetCost()}$";
+		}
+
+		protected override bool CanUpgrade()
+		{
+			return gameSlot.CanUpgrade();
+		}
+
+		protected override uint GetCost()
+		{
+			return gameSlot.GetUpgradeCost();
+		}
+	}
+
 }

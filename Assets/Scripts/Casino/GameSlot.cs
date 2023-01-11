@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using CasinoIdler;
-using UnityEngine;
 
 public class GameSlot : ISelectable
 {
@@ -9,19 +8,21 @@ public class GameSlot : ISelectable
 	public IReadOnlyList<ISelectable> SubSelections => null;
 	public string Name => $"{type} GameSlot";
 
-	public uint ProductionRate { get; }
+	public uint ProductionRate { get; private set; }
+	private int upgradeLevel; 
+	private uint upgradeCost;
 
 	private List<IAction> actions;
 	private readonly GameTypes type;
-	private readonly int level;
-	private readonly uint cost;
+	private readonly uint maxUpgradeLevel;
 
 	public GameSlot(GameSlotData data)
 	{
 		type = data.Types;
-		level = data.Level;
-		cost = data.UpgradeCost;
+		upgradeLevel = data.UpgradeLevel;
+		upgradeCost = data.UpgradeCost;
 		ProductionRate = data.ProductionRate;
+		maxUpgradeLevel = data.MaxUpgradeLevel;
 	}
 
 	public GameSlotData FetchData()
@@ -29,9 +30,10 @@ public class GameSlot : ISelectable
 		GameSlotData data = new GameSlotData
 		{
 			Types = type,
-			Level = level,
-			UpgradeCost = cost,
-			ProductionRate = ProductionRate
+			UpgradeLevel = this.upgradeLevel,
+			UpgradeCost = this.upgradeCost,
+			ProductionRate = this.ProductionRate,
+			MaxUpgradeLevel = this.maxUpgradeLevel
 		};
 
 		return data;
@@ -43,14 +45,26 @@ public class GameSlot : ISelectable
 		actions.AddRange(toAddAction);
 	}
 
-	public uint GetSellValue()
-	{
-		return (uint)Mathf.RoundToInt(cost * 0.8f);
-	}
-
 	public ICollection<IAction> GetActions()
 	{
 		return actions;
+	}
+
+	public void Upgrade()
+	{
+		upgradeLevel += 1;
+		upgradeCost += 5;
+		ProductionRate += 5;
+	}
+
+	public bool CanUpgrade()
+	{
+		return upgradeLevel < maxUpgradeLevel;
+	}
+
+	public uint GetUpgradeCost()
+	{
+		return upgradeCost;
 	}
 }
 
@@ -58,7 +72,8 @@ public class GameSlot : ISelectable
 public struct GameSlotData
 {
 	public GameTypes Types;
-	public int Level;
+	public int UpgradeLevel;
 	public uint UpgradeCost;
 	public uint ProductionRate;
+	public uint MaxUpgradeLevel;
 }

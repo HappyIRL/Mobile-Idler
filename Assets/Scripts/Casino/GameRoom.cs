@@ -8,7 +8,6 @@ public class GameRoom : ISelectable
 	public System.Action Unselect { get; set; }
 	public IReadOnlyList<ISelectable> SubSelections => gameSlots;
 	public bool CanAddGameSlot => gameSlots.Count < maxGameSlots;
-	public bool CanRemoveGameSlot => gameSlots.Count > 1;
 
 	public string Name => $"{gameType}Room";
 
@@ -19,7 +18,7 @@ public class GameRoom : ISelectable
 	private GameTypes gameType;
 
 	private const uint BaseGameSlotCost = 5;
-	private const uint BaseGameSlotProduction = 5;
+	private const uint BaseUpgradeGameSlotCost = 5;
 
 	public GameRoom(GameRoomData data)
 	{
@@ -101,8 +100,8 @@ public class GameRoom : ISelectable
 	{
 		GameSlot gameSlot = new GameSlot(data);
 
-		IAction[] sellAction = { new SellGameSlotAction(this, gameSlot, "Sell GameSlot") };
-		gameSlot.InitActions(sellAction);
+		IAction[] gameSlotActions = { new SellGameSlotAction(this, gameSlot, "Sell GameSlot", 5), new GameSlotUpgradeAction(gameSlot, "Upgrade GameSlot", BaseUpgradeGameSlotCost) };
+		gameSlot.InitActions(gameSlotActions);
 
 		gameSlots.Add(gameSlot);
 	}
@@ -111,10 +110,11 @@ public class GameRoom : ISelectable
 	{
 		GameSlotData data = new GameSlotData
 		{
-			Level = 1,
-			UpgradeCost = BaseGameSlotCost,
+			UpgradeLevel = 0,
+			UpgradeCost = BaseUpgradeGameSlotCost,
 			Types = gameType,
-			ProductionRate = BaseGameSlotProduction
+			ProductionRate = 5,
+			MaxUpgradeLevel = 10
 		};
 
 		return data;

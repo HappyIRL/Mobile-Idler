@@ -22,7 +22,7 @@ public class Saver
 
 	public void Load()
 	{
-		if (!SaveFileExists())
+		if (!SaveFileExists() || FlagHandler._alwaysLoadNewFlag)
 		{
 			Debug.Log("No Savefile found -> New Game.");
 			LoadNew();
