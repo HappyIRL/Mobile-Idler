@@ -28,7 +28,7 @@ public class GameHandler : MonoBehaviour
 		}
 
 		CasinoData casinoData = gameData.Value.CasinoData;
-		GameInit(new Casino(casinoData), gameData.Value.Wallet);
+		GameInit(new Casino(casinoData), gameData.Value.Wallet, gameData.Value.LastPlayed);
 	}
 
 	public GameData GetGameData()
@@ -38,14 +38,17 @@ public class GameHandler : MonoBehaviour
 
 	private void OnNewSaveGame()
 	{
-		GameInit(new Casino(), 0);
+		GameInit(new Casino(), 0, null);
 	}
 
-	private void GameInit(Casino casino, ulong walletAmount)
+	private void GameInit(Casino casino, ulong walletAmount, DateTime? lastPlayed)
 	{
 		this.casino = casino;
+		Debug.Log(OfflineWorker.GetOfflineGeneratedAmount(lastPlayed, casino.GetProductionRate()));
+		walletAmount += (uint)OfflineWorker.GetOfflineGeneratedAmount(lastPlayed, casino.GetProductionRate());
 		playerWallet = new PlayerWallet(walletAmount);
 		cashier = new Cashier(casino, playerWallet);
+
 		sceneView.Init(playerWallet, selector, casino);
 		idleTick ??= StartCoroutine(IdleTick());
 	}
@@ -66,7 +69,8 @@ public class GameHandler : MonoBehaviour
 		{
 			CasinoData = casino.FetchData(),
 			Wallet = playerWallet.Wallet,
-			Version = CurrentVersion
+			Version = CurrentVersion,
+			LastPlayed = DateTime.Now
 		};
 
 		return data;
@@ -79,6 +83,7 @@ public struct GameData
 	public CasinoData CasinoData;
 	public string Version;
 	public ulong Wallet;
+	public DateTime? LastPlayed;
 }
 
 public enum GameState

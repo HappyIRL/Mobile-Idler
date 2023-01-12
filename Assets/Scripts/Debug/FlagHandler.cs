@@ -4,5 +4,5 @@ using UnityEngine;
 
 public static class FlagHandler
 {
-	public static readonly bool _alwaysLoadNewFlag = true;
+	public static readonly bool _alwaysLoadNewFlag = false;
 }

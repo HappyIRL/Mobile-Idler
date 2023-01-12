@@ -33,7 +33,7 @@ public class Casino : ISelectable
 		RefreshProductionRate();
 	}
 
-	private uint GetProductionRate()
+	public uint GetProductionRate()
 	{
 		RefreshProductionRate();
 		return productionRate;
@@ -49,11 +49,6 @@ public class Casino : ISelectable
 		}
 
 		productionRate = result;
-	}
-
-	public uint GetMoneyLastIdleTick()
-	{
-		return GetProductionRate();
 	}
 
 	public CasinoData FetchData()

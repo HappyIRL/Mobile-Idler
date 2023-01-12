@@ -12,7 +12,7 @@ public class Cashier
 
 	public void OnTick()
 	{
-		uint depositAmount = casino.GetMoneyLastIdleTick();
+		uint depositAmount = casino.GetProductionRate();
 		wallet.Deposit(depositAmount);
 	}
 }
