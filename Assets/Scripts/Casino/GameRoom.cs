@@ -8,7 +8,6 @@ public class GameRoom : ISelectable
 	public System.Action Unselect { get; set; }
 	public IReadOnlyList<ISelectable> SubSelections => gameSlots;
 	public bool CanAddGameSlot => gameSlots.Count < maxGameSlots;
-
 	public string Name => $"{gameType}Room";
 
 	private readonly SerializedVector3 position;

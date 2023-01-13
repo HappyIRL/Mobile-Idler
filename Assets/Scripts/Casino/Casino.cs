@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
 using CasinoIdler;
-using UnityEngine;
 
 
 public class Casino : ISelectable
 {
 	public System.Action Unselect { get; set; }
 	public IReadOnlyList<ISelectable> SubSelections => gameFloors;
-	public string Name => "Casino";
 
+	public string Name => "Casino";
 
 	private List<GameFloor> gameFloors = new List<GameFloor>();
 	private IAction[] actions;
@@ -79,6 +78,13 @@ public class Casino : ISelectable
 		return BaseGameFloorCost;
 	}
 
+	public void CreateNewGameFloor()
+	{
+		GameFloorData data = GetBaseGameFloorData(false);
+
+		CreateGameFloor(data);
+	}
+
 	private void CreateGameFloor(GameFloorData data)
 	{
 		GameFloor gameFloor = new GameFloor(data);
@@ -87,13 +93,6 @@ public class Casino : ISelectable
 		gameFloor.InitActions(gameFloorActions);
 
 		gameFloors.Add(gameFloor);
-	}
-
-	public void CreateNewGameFloor()
-	{
-		GameFloorData data = GetBaseGameFloorData(false);
-
-		CreateGameFloor(data);
 	}
 
 	private void CreateCasinoActions()

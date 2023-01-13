@@ -8,7 +8,6 @@ public class GameHandler : MonoBehaviour
 	[Inject] private OnGUISceneView sceneView;
 	[Inject] private PrototypeSelector selector;
 
-	public Action Tick;
 
 	private const float IdleTickDuration = 1f;
 	private const string CurrentVersion = "1.0";
@@ -44,7 +43,6 @@ public class GameHandler : MonoBehaviour
 	private void GameInit(Casino casino, ulong walletAmount, DateTime? lastPlayed)
 	{
 		this.casino = casino;
-		Debug.Log(OfflineWorker.GetOfflineGeneratedAmount(lastPlayed, casino.GetProductionRate()));
 		walletAmount += (uint)OfflineWorker.GetOfflineGeneratedAmount(lastPlayed, casino.GetProductionRate());
 		playerWallet = new PlayerWallet(walletAmount);
 		cashier = new Cashier(casino, playerWallet);
@@ -57,7 +55,6 @@ public class GameHandler : MonoBehaviour
 	{
 		while (gameState == GameState.Running)
 		{
-			Tick?.Invoke();
 			cashier.OnTick();
 			yield return new WaitForSeconds(IdleTickDuration);
 		}

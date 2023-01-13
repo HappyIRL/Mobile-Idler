@@ -15,8 +15,6 @@ public class GameFloor : ISelectable
 
 	public GameFloor(GameFloorData data)
 	{
-
-
 		if (data.IsTutorialFloor)
 		{
 			CreateGameRoom(GetBaseGameRoomData(true));
