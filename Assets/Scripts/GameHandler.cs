@@ -6,7 +6,8 @@ using Zenject;
 public class GameHandler : MonoBehaviour
 {
 	[Inject] private OnGUISceneView sceneView;
-	[Inject] private PrototypeSelector selector;
+	[Inject] private PrototypeUI pUI;
+	[Inject] private Selector selector;
 
 
 	private const float IdleTickDuration = 1f;
@@ -46,6 +47,9 @@ public class GameHandler : MonoBehaviour
 		walletAmount += (uint)OfflineWorker.GetOfflineGeneratedAmount(lastPlayed, casino.GetProductionRate());
 		playerWallet = new PlayerWallet(walletAmount);
 		cashier = new Cashier(casino, playerWallet);
+
+		CasinoUI casinoUI = new CasinoUI();
+		casinoUI.Init(casino);
 
 		sceneView.Init(playerWallet, selector, casino);
 		idleTick ??= StartCoroutine(IdleTick());

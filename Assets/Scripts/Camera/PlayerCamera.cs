@@ -3,21 +3,16 @@ using UnityEngine;
 public class PlayerCamera : MonoBehaviour
 {
 	private Camera camera;
+	private Transform cameraTransform;
 
 	private void Awake()
 	{
 		camera = GetComponent<Camera>();
+		cameraTransform = camera.transform;
 	}
 
-	public RaycastHit? MouseToWorldRay(Vector2 mousePos)
+	public Vector3 ScreenPointToWorldPos(Vector2 point)
 	{
-		Ray ray = camera.ScreenPointToRay(mousePos);
-
-		if (Physics.Raycast(ray, out RaycastHit hit))
-		{
-			return hit;
-		}
-
-		return null;
+		return camera.ScreenToWorldPoint(new Vector3(point.x, point.y, cameraTransform.position.z * -1));
 	}
 }

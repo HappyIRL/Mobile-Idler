@@ -1,16 +1,18 @@
 using System;
 using System.Collections.Generic;
 using CasinoIdler;
-using UnityEngine;
+using Action = System.Action;
 
 public class GameRoom : ISelectable
 {
 	public System.Action Unselect { get; set; }
 	public IReadOnlyList<ISelectable> SubSelections => gameSlots;
+	public Action InternalStructureChanged { get; set; }
 	public bool CanAddGameSlot => gameSlots.Count < maxGameSlots;
 	public string Name => $"{gameType}Room";
+	public IReadOnlyList<GameSlot> GameSlots => gameSlots;
 
-	private readonly SerializedVector3 position;
+
 	private readonly List<GameSlot> gameSlots = new List<GameSlot>();
 	private List<IAction> actions;
 	private uint maxGameSlots = 4;
@@ -21,7 +23,6 @@ public class GameRoom : ISelectable
 
 	public GameRoom(GameRoomData data)
 	{
-		position = data.Position;
 		gameType = data.GameType;
 
 		if (data.IsTutorialRoom)
@@ -41,7 +42,9 @@ public class GameRoom : ISelectable
 
 	public void CreateNewGameSlot()
 	{
-		CreateGameSlot(GetBaseGameSlotData());
+		GameSlotData data = GetBaseGameSlotData();
+
+		CreateGameSlot(data);
 	}
 
 
@@ -62,7 +65,6 @@ public class GameRoom : ISelectable
 		}
 
 		data.GameSlotsData = slotDatas;
-		data.Position = position;
 
 		return data;
 	}
@@ -79,6 +81,8 @@ public class GameRoom : ISelectable
 	{
 		gameSlots.Remove(gameSlot);
 		gameSlot.Unselect?.Invoke();
+
+		InternalStructureChanged.Invoke();
 
 		return BaseGameSlotCost;
 	}
@@ -101,8 +105,11 @@ public class GameRoom : ISelectable
 
 		IAction[] gameSlotActions = { new SellGameSlotAction(this, gameSlot, "Sell GameSlot", 5), new GameSlotUpgradeAction(gameSlot, "Upgrade GameSlot", BaseUpgradeGameSlotCost) };
 		gameSlot.InitActions(gameSlotActions);
+		gameSlot.InternalStructureChanged += OnInternalStructureChanged;
 
 		gameSlots.Add(gameSlot);
+
+		InternalStructureChanged?.Invoke();
 	}
 
 	private GameSlotData GetBaseGameSlotData()
@@ -118,12 +125,16 @@ public class GameRoom : ISelectable
 
 		return data;
 	}
+
+	private void OnInternalStructureChanged()
+	{
+		InternalStructureChanged?.Invoke();
+	}
 }
 
 [Serializable]
 public struct GameRoomData
 {
-	public SerializedVector3 Position;
 	public GameSlotData[] GameSlotsData;
 	public GameTypes GameType;
 	public bool IsTutorialRoom;

@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
 using CasinoIdler;
+using Action = System.Action;
 
 public class GameSlot : ISelectable
 {
 	public System.Action Unselect { get; set; }
 	public IReadOnlyList<ISelectable> SubSelections => null;
+	public Action InternalStructureChanged { get; set; }
 	public string Name => $"{type} GameSlot";
-
 	public uint ProductionRate { get; private set; }
+
 	private int upgradeLevel; 
 	private uint upgradeCost;
 
@@ -45,16 +47,18 @@ public class GameSlot : ISelectable
 		actions.AddRange(toAddAction);
 	}
 
+
 	public ICollection<IAction> GetActions()
 	{
 		return actions;
 	}
-
+	
 	public void Upgrade()
 	{
 		upgradeLevel += 1;
 		upgradeCost += 5;
 		ProductionRate += 5;
+		InternalStructureChanged?.Invoke();
 	}
 
 	public bool CanUpgrade()

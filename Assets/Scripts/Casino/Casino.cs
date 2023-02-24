@@ -1,23 +1,26 @@
 using System;
 using System.Collections.Generic;
 using CasinoIdler;
+using Action = System.Action;
 
 
 public class Casino : ISelectable
 {
-	public System.Action Unselect { get; set; }
+	public Action Unselect { get; set; }
 	public IReadOnlyList<ISelectable> SubSelections => gameFloors;
-
+	public Action InternalStructureChanged { get; set; }
 	public string Name => "Casino";
+	public IReadOnlyList<GameFloor> GameFloors => gameFloors;
+
 
 	private List<GameFloor> gameFloors = new List<GameFloor>();
-	private IAction[] actions;
+	private List<IAction> actions;
 	private uint productionRate;
 	private const uint BaseGameFloorCost = 5;
 
 	public Casino()
 	{
-		CreateGameFloor(GetBaseGameFloorData(true));
+		CreateGameFloor(GetBaseGameFloorData());
 		CreateCasinoActions();
 	}
 
@@ -34,7 +37,6 @@ public class Casino : ISelectable
 
 	public uint GetProductionRate()
 	{
-		RefreshProductionRate();
 		return productionRate;
 	}
 
@@ -62,7 +64,6 @@ public class Casino : ISelectable
 		}
 
 		data.GameFloorsData = gameFloorsData;
-		data.ProductionRate = GetProductionRate();
 
 		return data;
 	}
@@ -75,12 +76,16 @@ public class Casino : ISelectable
 	{
 		gameFloors.Remove(gameFloor);
 		gameFloor.Unselect?.Invoke();
+
+		InternalStructureChanged.Invoke();
+
 		return BaseGameFloorCost;
 	}
 
 	public void CreateNewGameFloor()
 	{
-		GameFloorData data = GetBaseGameFloorData(false);
+		GameFloorData data = GetBaseGameFloorData();
+		data.IsTutorialFloor = false;
 
 		CreateGameFloor(data);
 	}
@@ -91,24 +96,32 @@ public class Casino : ISelectable
 
 		IAction[] gameFloorActions = { new SellGameFloorAction(this, gameFloor, "Sell GameFloor", 5) };
 		gameFloor.InitActions(gameFloorActions);
+		gameFloor.InternalStructureChanged += OnInternalStructureChanged;
+
+		InternalStructureChanged?.Invoke();
 
 		gameFloors.Add(gameFloor);
 	}
 
 	private void CreateCasinoActions()
 	{
-		actions = new[] { new PurchaseGameFloorAction(this, "Buy GameFloor", BaseGameFloorCost) };
+		actions = new List<IAction> { new PurchaseGameFloorAction(this, "Buy GameFloor", BaseGameFloorCost) };
 	}
 
-	private GameFloorData GetBaseGameFloorData(bool isTutorial)
+	private GameFloorData GetBaseGameFloorData()
 	{
 		GameFloorData data = new GameFloorData
 		{
-			Cost = BaseGameFloorCost,
-			IsTutorialFloor = isTutorial
+			IsTutorialFloor = true,
+			GameRoomsData = null
 		};
 
 		return data;
+	}
+
+	private void OnInternalStructureChanged()
+	{
+		RefreshProductionRate();
 	}
 }
 
@@ -116,7 +129,6 @@ public class Casino : ISelectable
 public struct CasinoData
 {
 	public GameFloorData[] GameFloorsData;
-	public uint ProductionRate;
 }
 
 public enum GameTypes

@@ -1,7 +1,3 @@
-using System;
-using UnityEngine;
-using Zenject;
-
 namespace CasinoIdler
 {
 	public interface IAction
@@ -186,10 +182,10 @@ namespace CasinoIdler
 			return wallet.CheckWalletFor(cost) && CanPurchase();
 		}
 
-		public override void Execute(PlayerWallet wallet, T param)
+		public override void Execute(PlayerWallet wallet, T type)
 		{
 			wallet.Withdraw(cost);
-			Purchase(param);
+			Purchase(type);
 		}
 	}
 
@@ -209,7 +205,7 @@ namespace CasinoIdler
 
 		protected override bool CanPurchase()
 		{
-			return true;
+			return gameFloor.CanAddGameRoom;
 		}
 	}
 
@@ -255,6 +251,13 @@ namespace CasinoIdler
 		protected override void Upgrade()
 		{
 			gameSlot.Upgrade();
+
+			if (!CanUpgrade())
+			{
+				Name = $"{originalName}: MAXED";
+				return;
+			}
+
 			Name = $"{originalName}: {GetCost()}$";
 		}
 

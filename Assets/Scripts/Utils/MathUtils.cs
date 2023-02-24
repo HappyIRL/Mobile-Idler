@@ -1,19 +1,23 @@
 using UnityEngine;
 
 [System.Serializable]
-public struct SerializedVector3
+public struct SerializedVector2
 {
-	public float X, Y, Z;
+	public float X, Y;
 
-	public SerializedVector3(Vector3 v3)
+	public SerializedVector2(float x, float y)
 	{
-		X = v3.x;
-		Y = v3.y;
-		Z = v3.z;
+		X = x;
+		Y = y;
 	}
 
-	public Vector3 ToVector3()
+	public static implicit operator Vector2(SerializedVector2 serializedVector2)
 	{
-		return new Vector3(X, Y, Z);
+		return new Vector2(serializedVector2.X, serializedVector2.Y);
+	}
+
+	public static implicit operator SerializedVector2(Vector2 unityVec)
+	{
+		return new SerializedVector2 { X = unityVec.x, Y = unityVec.y };
 	}
 }

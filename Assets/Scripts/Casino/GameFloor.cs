@@ -1,23 +1,30 @@
 using System;
 using System.Collections.Generic;
 using CasinoIdler;
+using Action = System.Action;
 
 public class GameFloor : ISelectable
 {
 	public string Name => "Floor";
 	public System.Action Unselect { get; set; }
+	public Action InternalStructureChanged { get; set; }
 	public IReadOnlyList<ISelectable> SubSelections => gameRooms;
+	public bool CanAddGameRoom => gameRooms.Count < maxGameRooms;
+	public IReadOnlyList<GameRoom> GameRooms => gameRooms;
 
 
+	private bool isTutorialFloor;
 	private List<GameRoom> gameRooms = new List<GameRoom>();
 	private List<IAction> actions;
 	private const uint BaseGameRoomCost = 5;
+	private uint maxGameRooms = 25;
 
 	public GameFloor(GameFloorData data)
 	{
 		if (data.IsTutorialFloor)
 		{
-			CreateGameRoom(GetBaseGameRoomData(true));
+			CreateGameRoom(GetBaseGameRoomData());
+			isTutorialFloor = true;
 			return;
 		}
 
@@ -42,14 +49,17 @@ public class GameFloor : ISelectable
 		}
 
 		data.GameRoomsData = gameRoomsData;
+		data.IsTutorialFloor = isTutorialFloor;
 
 		return data;
 	}
 
 	public void CreateNewGameRoom(GameTypes type)
 	{
-		GameRoomData data = GetBaseGameRoomData(false);
+		GameRoomData data = GetBaseGameRoomData();
+
 		data.GameType = type;
+		data.IsTutorialRoom = false;
 
 		CreateGameRoom(data);
 	}
@@ -58,6 +68,8 @@ public class GameFloor : ISelectable
 	{
 		gameRooms.Remove(gameRoom);
 		gameRoom.Unselect?.Invoke();
+
+		InternalStructureChanged.Invoke();
 
 		return BaseGameRoomCost;
 	}
@@ -92,20 +104,28 @@ public class GameFloor : ISelectable
 		GameRoom gameRoom = new GameRoom(data);
 
 		IAction[] gameRoomActions = { new SellGameRoomAction(this, gameRoom, "Sell GameRoom", 5) };
-
 		gameRoom.InitActions(gameRoomActions);
+		gameRoom.InternalStructureChanged += OnInternalStructureChanged;
+
 		gameRooms.Add(gameRoom);
+
+		InternalStructureChanged?.Invoke();
 	}
 
-	private GameRoomData GetBaseGameRoomData(bool isTutorial)
+	private GameRoomData GetBaseGameRoomData()
 	{
 		GameRoomData data = new GameRoomData
 		{
 			GameType = GameTypes.Roulette,
-			IsTutorialRoom = isTutorial
+			IsTutorialRoom = true
 		};
 
 		return data;
+	}
+
+	private void OnInternalStructureChanged()
+	{
+		InternalStructureChanged?.Invoke();
 	}
 }
 
@@ -113,6 +133,5 @@ public class GameFloor : ISelectable
 public struct GameFloorData
 {
 	public GameRoomData[] GameRoomsData;
-	public uint Cost;
 	public bool IsTutorialFloor;
 }

@@ -55,7 +55,6 @@ public class PlayerInputBroadcast : MonoBehaviour
 		if (IsPointerOverUIObject()) return;
 
 		Vector2 touch0Pos = playerActions.Touch0Position.ReadValue<Vector2>();
-
 		Touch0Tap?.Invoke(touch0Pos);
 	}
 

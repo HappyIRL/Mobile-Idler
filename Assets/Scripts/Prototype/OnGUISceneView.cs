@@ -4,11 +4,11 @@ using System.Linq;
 using CasinoIdler;
 using UnityEditor;
 using UnityEngine;
-using Action = CasinoIdler.Action;
+using UnityEngine.Tilemaps;
 
 public class OnGUISceneView : MonoBehaviour
 {
-	private PrototypeSelector selector;
+	private Selector selector;
 	private PlayerWallet wallet;
 	private ISelectable rootSelectable;
 	private ICollection<IAction> actions;
@@ -16,12 +16,11 @@ public class OnGUISceneView : MonoBehaviour
 	private bool isInitComplete;
 	private Vector2 scrollPosition;
 
-	public void Init(PlayerWallet wallet, PrototypeSelector selector, ISelectable rootSelectable)
+	public void Init(PlayerWallet wallet, Selector selector, ISelectable rootSelectable)
 	{
 		this.selector = selector;
 		this.wallet = wallet;
 		this.rootSelectable = rootSelectable;
-		selector.SetSelection(rootSelectable);
 		isInitComplete = true;
 	}
 
@@ -85,11 +84,11 @@ public class OnGUISceneView : MonoBehaviour
 		if (actions == null)
 			return;
 
-		foreach (var actionBase in actions)
+		foreach (var action in actions)
 		{
-			EditorGUI.BeginDisabledGroup(!actionBase.CanExecute(wallet));
+			GUI.enabled = action.CanExecute(wallet);
 
-			if (actionBase is CasinoIdler.Action<GameTypes> typedAction)
+			if (action is CasinoIdler.Action<GameTypes> typedAction)
 			{
 				if (GUILayout.Button($"Type of buyable: {selectedGameTypeOptions.First()}"))
 				{
@@ -104,16 +103,14 @@ public class OnGUISceneView : MonoBehaviour
 				}
 			}
 
-			else if (actionBase is Action action)
+			else if (action is CasinoIdler.Action walletAction)
 			{
 
-				if (GUILayout.Button(action.Name))
+				if (GUILayout.Button(walletAction.Name))
 				{
-					action.Execute(wallet);
+					walletAction.Execute(wallet);
 				}
 			}
-
-			EditorGUI.EndDisabledGroup();
 		}
 	}
 }

@@ -6,21 +6,21 @@ using Zenject;
 [CreateAssetMenu(menuName = "ScriptableObjects/DefaultSceneInstaller")]
 public class DefaultSceneInstaller : ScriptableObjectInstaller<DefaultSceneInstaller>
 {
-	[SerializeField] private GameObject mainCameraPrefab, playerInputHandlerPrefab, deviceOrientationPrefab, selectorPrefab;
+	[SerializeField] private GameObject mainCameraPrefab, playerInputHandlerPrefab, deviceOrientationPrefab;
 
 	[SerializeField]
-	private GameObject saveHandlerPrefab, gameHandlerPrefab, prototypeSelectorPrefab, sceneViewPrefab;
+	private GameObject saveHandlerPrefab, gameHandlerPrefab, selectorPrefab, sceneViewPrefab, pUI;
 
 	public override void InstallBindings()
 	{
 		Container.Bind<PlayerCamera>().FromComponentInNewPrefab(mainCameraPrefab).AsSingle().NonLazy();
 		Container.Bind<PlayerInputBroadcast>().FromComponentInNewPrefab(playerInputHandlerPrefab).AsSingle().NonLazy();
 		Container.Bind<DeviceOrientationHandler>().FromComponentInNewPrefab(deviceOrientationPrefab).AsSingle().NonLazy();
-		Container.Bind<Selector>().FromComponentInNewPrefab(selectorPrefab).AsSingle().NonLazy();
 		Container.Bind<SaveHandler>().FromComponentInNewPrefab(saveHandlerPrefab).AsSingle().NonLazy();
 		Container.Bind<OnGUISceneView>().FromComponentInNewPrefab(sceneViewPrefab).AsSingle().NonLazy();
 		Container.Bind<GameHandler>().FromComponentInNewPrefab(gameHandlerPrefab).AsSingle().NonLazy();
-		Container.Bind<PrototypeSelector>().FromComponentInNewPrefab(prototypeSelectorPrefab).AsSingle().NonLazy();
+		Container.Bind<Selector>().FromComponentInNewPrefab(selectorPrefab).AsSingle().NonLazy();
+		Container.Bind<PrototypeUI>().FromComponentInNewPrefab(pUI).AsSingle().NonLazy();
 
 		Container.BindFactory<GameObject, Transform, PrefabFactory>().FromFactory<NormalPrefabFactory>();
 	}

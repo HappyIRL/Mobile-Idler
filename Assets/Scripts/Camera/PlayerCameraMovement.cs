@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Xml;
-using UnityEditor;
 using UnityEngine;
 
 public struct Vector2MinMax
@@ -28,27 +25,20 @@ public class PlayerCameraMovement : PlayerInputEventsBehaviour
 
 	[Zenject.Inject] private Selector selector;
 
-	[SerializeField] private Vector2MinMax cameraZoomClamp = new Vector2MinMax(4, 120);
+	[SerializeField] private Vector2MinMax cameraZoomClamp = new Vector2MinMax(-4, -11);
 	[SerializeField] private float cameraMoveSpeed = 0.5f;
-	[SerializeField] private float cameraZoomSpeed = 80f;
+	[SerializeField] private float cameraZoomSpeed = 20f;
 
-	private Camera camera;
+	private Camera camera;	
 	private Transform cameraTransform;
-
-	private Vector3 cameraPosition;
 	private Vector2 touch0Delta;
-	private Vector2MinMax cameraBoarders = new Vector2MinMax(0, 40);
+	private Vector2MinMax cameraBoardersX = new Vector2MinMax(12f, 14f);
+	private Vector2MinMax cameraBoardersY = new Vector2MinMax(7.5f, 9.5f);
 
 	private void Awake()
 	{
 		camera = GetComponent<Camera>();
 		cameraTransform = camera.transform;
-	}
-
-	protected override void OnEnable()
-	{
-		base.OnEnable();
-		selector.NewNullableSelection += OnNewSelection;
 	}
 
 	protected override void OnTouch0DeltaChange(Vector2 delta)
@@ -86,31 +76,46 @@ public class PlayerCameraMovement : PlayerInputEventsBehaviour
 		return false;
 	}
 
+	[NaughtyAttributes.Button("Out")]
+	private void ZoomIn()
+	{
+		Zoom(new Vector2(0,0), new Vector2(1,0));
+	}
+
+	[NaughtyAttributes.Button("In")]
+	private void ZoomOut()
+	{
+		Zoom(new Vector2(0, 0), new Vector2(-1, 0));
+	}
+
 	private void Zoom(Vector2 x, Vector2 y)
 	{
 		Vector3 newCameraPosition = cameraTransform.position;
 
 		//facing towards - zoom out
-		if (x.x > 0 && y.x < 0)
+
+		if (x.x == 0 && y.x == 0)
+			return;
+
+		if (x.x >= 0 && y.x <= 0)
 		{
-			newCameraPosition.y -= cameraZoomSpeed * Time.deltaTime;
+			newCameraPosition.z += cameraZoomSpeed * Time.deltaTime;
 		}
 		//facing away - zoom in
-		else if (x.x < 0 && y.x > 0)
+		else if (x.x <= 0 && y.x >= 0)
 		{
-			newCameraPosition.y += cameraZoomSpeed * Time.deltaTime;
+			newCameraPosition.z -= cameraZoomSpeed * Time.deltaTime;
 		}
-
-		newCameraPosition.y = Mathf.Clamp(newCameraPosition.y, cameraZoomClamp.Min, cameraZoomClamp.Max);
 
 		SetCameraPosition(newCameraPosition);
 	}
 
 	private Vector3 GetClampedPosition(Vector3 position)
 	{
-		position.x = Mathf.Clamp(position.x, cameraBoarders.Min, cameraBoarders.Max);
-		position.z = Mathf.Clamp(position.z, cameraBoarders.Min, cameraBoarders.Max);
-		position.y = Mathf.Clamp(position.y, cameraZoomClamp.Min, cameraZoomClamp.Max);
+		position.x = Mathf.Clamp(position.x, cameraBoardersX.Min - (cameraTransform.position.z + 11), cameraBoardersX.Max + (cameraTransform.position.z + 11));
+		position.y = Mathf.Clamp(position.y, cameraBoardersY.Min - ((cameraTransform.position.z + 11) * 0.7f), cameraBoardersY.Max + ((cameraTransform.position.z + 11) * 0.7f));
+		position.z = Mathf.Clamp(position.z, cameraZoomClamp.Max, cameraZoomClamp.Min);
+
 		return position;
 	}
 
@@ -121,22 +126,17 @@ public class PlayerCameraMovement : PlayerInputEventsBehaviour
 
 	private void MoveWithDelta(Vector2 delta)
 	{
-		cameraPosition = cameraTransform.position;
-		float zoomScaler = cameraPosition.y / 6;
-		cameraPosition.x -=  delta.x * Time.deltaTime * cameraMoveSpeed * zoomScaler;
-		cameraPosition.z -= delta.y * Time.deltaTime * cameraMoveSpeed * zoomScaler;
+		Vector3 cameraPosition = cameraTransform.position;
+		float zoomScaler = cameraPosition.z / 6;
+		cameraPosition.x +=  delta.x * Time.deltaTime * cameraMoveSpeed * zoomScaler;
+		cameraPosition.y += delta.y * Time.deltaTime * cameraMoveSpeed * zoomScaler;
+
 		SetCameraPosition(cameraPosition);
 	}
 
 	public void MoveToHorizontal(Vector3 position)
 	{
-		position.y = cameraTransform.position.y;
+		position.z = cameraTransform.position.z;
 		SetCameraPosition(position);
-	}
-
-	protected override void OnDisable()
-	{
-		base.OnDisable();
-		selector.NewNullableSelection -= OnNewSelection;
 	}
 }
