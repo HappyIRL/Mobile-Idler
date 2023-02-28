@@ -51,7 +51,7 @@ public class OnGUISceneView : MonoBehaviour
 	{
 		if (GUILayout.Button(selectable.Name))
 		{
-			selector.SetSelection(selectable);
+			//selector.SetSelection(selectable);
 		}
 
 		if (selectable.SubSelections == null)
@@ -78,7 +78,7 @@ public class OnGUISceneView : MonoBehaviour
 
 		if (selector.Selection != selector.OldSelection)
 		{
-			actions = selector.Selection.GetActions();
+			actions = selector.Selection.Selectable.GetActions();
 		}
 
 		if (actions == null)

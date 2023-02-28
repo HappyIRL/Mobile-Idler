@@ -1,14 +1,19 @@
 using System;
 using System.Collections;
+using Assets.Scripts.UI;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using Zenject;
 
 public class GameHandler : MonoBehaviour
 {
 	[Inject] private OnGUISceneView sceneView;
-	[Inject] private PrototypeUI pUI;
-	[Inject] private Selector selector;
-
+	[Inject(Id = "floorMap")] private Tilemap floorMap;
+	[Inject] private CasinoSprites casinoSprites;
+	[Inject] private FrontendUI frontendUI;
+	[Inject] private PlayerCamera playerCamera;
+	[Inject] private PlayerInputBroadcast playerInputBroadcast;
+	[Inject(Id = "casinoMap")] private Tilemap casinomap;
 
 	private const float IdleTickDuration = 1f;
 	private const string CurrentVersion = "1.0";
@@ -16,6 +21,7 @@ public class GameHandler : MonoBehaviour
 	private Casino casino;
 	private Cashier cashier;
 	private PlayerWallet playerWallet;
+	private UIDisplayer uiDisplayer;
 	private GameState gameState = GameState.Running;
 	private Coroutine idleTick;
 
@@ -48,11 +54,16 @@ public class GameHandler : MonoBehaviour
 		playerWallet = new PlayerWallet(walletAmount);
 		cashier = new Cashier(casino, playerWallet);
 
-		CasinoUI casinoUI = new CasinoUI();
-		casinoUI.Init(casino);
+		CasinoUIHandler casinoUIHandler = new CasinoUIHandler(casino, casinoSprites, floorMap, casinomap);
+		Selector selector = new Selector(playerCamera, casinoUIHandler, playerInputBroadcast);
+		uiDisplayer = new UIDisplayer(selector, playerWallet, frontendUI, casinoSprites);
 
 		sceneView.Init(playerWallet, selector, casino);
-		idleTick ??= StartCoroutine(IdleTick());
+
+		if(idleTick != null)
+			StopCoroutine(idleTick);
+
+		idleTick = StartCoroutine(IdleTick());
 	}
 
 	private IEnumerator IdleTick()
@@ -60,6 +71,7 @@ public class GameHandler : MonoBehaviour
 		while (gameState == GameState.Running)
 		{
 			cashier.OnTick();
+			uiDisplayer.OnTick();
 			yield return new WaitForSeconds(IdleTickDuration);
 		}
 	}

@@ -1,25 +1,64 @@
-using System.Collections;
 using System.Collections.Generic;
+using Assets.Scripts.UI;
+using CasinoIdler;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class GameSlotUI
+public class GameSlotUI : SelectableUI
 {
-	private Tilemap tileMap;
+	public override ISelectable Selectable => selectable;
 
-	public void Init(GameSlot gameSlot, Tilemap tileMap, Vector3Int postion)
+	private ISelectable selectable;
+	private CasinoSprites casinoSprites;
+	private Tilemap tilemap;
+	private GameSlot gameSlot;
+	private List<SelectableUI>[,] selectableUILists;
+	private Vector2Int position;
+
+	//R E M O V E THIS
+	private GameRoomUI gameRoomUi;
+
+	public void Init(GameSlot gameSlot, Tilemap tileMap, Vector2Int position, CasinoSprites casinoSprites, List<SelectableUI>[,] selectableUIs, GameRoomUI gameroomUI)
 	{
-		this.tileMap = tileMap;
+		this.position = position;
+		this.selectableUILists = selectableUIs;
+		this.tilemap = tileMap;
+		this.gameSlot = gameSlot;
+		selectable = gameSlot;
+		this.gameRoomUi = gameroomUI;
+		this.casinoSprites = casinoSprites;
 
-		DrawGameSlot(postion);
+		RegisterUiField();
+		DrawGameSlot();
 	}
 
-	private void DrawGameSlot(Vector3Int postion)
+	public override void OnAction(IAction action)
+	{
+		if (action.actionType == ActionType.Sell)
+		{
+			UnregisterUiField();
+		}
+	}
+
+	private void DrawGameSlot()
 	{
 		Tile tile = ScriptableObject.CreateInstance<Tile>();
-		Sprite test = Resources.Load<Sprite>("purple_rug");
+
+		Sprite test = casinoSprites.GetSpriteByType(gameSlot.GameType);
 		tile.sprite = test;
 
-		tileMap.SetTile(postion, tile);
+		tilemap.SetTile(new Vector3Int(position.x, position.y, 0), tile);
+	}
+
+	protected override void RegisterUiField()
+	{
+		selectableUILists[position.x, position.y].Insert(0, this);
+	}
+
+	protected override void UnregisterUiField()
+	{
+		selectableUILists[position.x, position.y].Remove(this);
+		tilemap.SetTile(new Vector3Int(position.x, position.y, 0), null);
+		gameRoomUi.DrawAll();
 	}
 }

@@ -1,34 +1,41 @@
 using System.Collections.Generic;
+using Assets.Scripts.UI;
 using CasinoIdler;
 using UnityEngine;
-using Action = System.Action;
 
-public class Selector : PlayerInputEventsBehaviour
+public class Selector
 {
-	[Zenject.Inject] private PlayerCamera playerCamera;
+	private PlayerCamera playerCamera;
+	private CasinoUIHandler casinoUIHandler;
 
-	public ISelectable Selection { get; private set; }
-	public ISelectable OldSelection { get; private set; }
+	public SelectableUI Selection { get; private set; }
+	public SelectableUI OldSelection { get; private set; }
 
-	public void SetSelection(ISelectable selectable)
+	public System.Action NewSelection;
+
+	public Selector(PlayerCamera playerCamera, CasinoUIHandler casinoUIHandler, PlayerInputBroadcast playerInputBroadcast)
 	{
+		playerInputBroadcast.Touch0Tap += OnTouch0Tap;
+		this.casinoUIHandler = casinoUIHandler;
+		this.playerCamera = playerCamera;
 
-		OldSelection = Selection;
-		Selection = selectable;
 	}
 
-	protected override void OnTouch0Tap(Vector2 touchPos)
+	protected void OnTouch0Tap(Vector2 touchPos)
 	{
-		Debug.Log(playerCamera.ScreenPointToWorldPos(touchPos));
+		Vector2 worldPos = playerCamera.ScreenPointToWorldPos(touchPos);
+		Selection = casinoUIHandler.GetCasinoWorldUI(worldPos);
+
+		NewSelection?.Invoke();
+
+		OldSelection = Selection;
 	}
 }
 
 public interface ISelectable
 {
-	public Action InternalStructureChanged { get; set; }
 	public ICollection<IAction> GetActions();
 	public IReadOnlyList<ISelectable> SubSelections { get; }
 	public string Name { get; }
-
 }
 

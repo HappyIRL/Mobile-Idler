@@ -1,37 +1,69 @@
 using System.Collections.Generic;
+using Assets.Scripts.UI;
+using CasinoIdler;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Vector2 = UnityEngine.Vector2;
 
-public class CasinoUI
+public class CasinoUI : SelectableUI
 {
-	private Tilemap tileMap;
+	public override ISelectable Selectable => selectable;
 
-	private Casino casino;
+	private ISelectable selectable;
+	private Tilemap tilemap;
+	private CasinoSprites casinoSprites;
 	private IReadOnlyList<GameFloor> gameFloors;
 	private int currentGameFloor;
+	private List<SelectableUI>[,] selectableUILists;
+	private Tilemap casinomap;
 
-	public void Init(Casino casino)
+	public CasinoUI(Casino casino, CasinoSprites casinoSprites, Tilemap tilemap, Tilemap casinomap, List<SelectableUI>[,] selectableUILists)
 	{
-		this.casino = casino;
-
-		tileMap = GameObject.Find("Floor").GetComponent<Tilemap>();
-
+		this.casinomap = casinomap;
+		this.selectableUILists = selectableUILists;
+		this.tilemap = tilemap;
+		this.casinoSprites = casinoSprites;
+		selectable = casino;
 		gameFloors = casino.GameFloors;
 		currentGameFloor = 0;
 
-		DrawFloor();
+		RegisterUiField();
+		DrawCasino();
 	}
 
-	private void DrawFloor()
+	protected sealed override void RegisterUiField()
 	{
+		foreach (List<SelectableUI> selectableUis in selectableUILists)
+		{
+			selectableUis.Add(this);
+		}
+	}
+
+	public override void OnAction(IAction action)
+	{
+		DrawCasino();
+	}
+
+	protected override void UnregisterUiField()
+	{
+
+	}
+
+	private void DrawCasino()
+	{
+		tilemap.ClearAllTiles();
+		if (gameFloors.Count < 1)
+			return;
 		GameFloor gameFloor = gameFloors[currentGameFloor];
 		GameFloorUI gameFloorUI = new GameFloorUI();
-		gameFloorUI.Init(gameFloor, tileMap);
+		tilemap.ClearAllTiles();
+		gameFloorUI.Init(gameFloor, tilemap, casinomap, casinoSprites, selectableUILists);
 	}
+}
 
-	public void SwitchToFloor(int index)
-	{
-		currentGameFloor = index;
-		DrawFloor();
-	}
+public static class CasinoUIConstants
+{
+	public const int FLOOR_ROW_SIZE = 9;
+	public const int GAMEROOM_SIZE = 2;
+	public const int CASINO_OFFSET = 4;
 }

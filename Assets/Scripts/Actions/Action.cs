@@ -3,19 +3,22 @@ namespace CasinoIdler
 	public interface IAction
 	{
 		public abstract string Name { get; }
+		public abstract ActionType actionType { get; }
 		public abstract bool CanExecute(PlayerWallet wallet);
 	}
 
 	public abstract class Action : IAction
 	{
 		public virtual string Name { get; protected set; }
+		public abstract ActionType actionType { get; }
 		public abstract bool CanExecute(PlayerWallet wallet);
 		public abstract void Execute(PlayerWallet wallet);
 	}
 
 	public abstract class Action<T> : IAction
 	{
-		public virtual string Name { get; protected set; }
+		public  virtual string Name { get; protected set; }
+		public abstract ActionType actionType { get; }
 		public abstract bool CanExecute(PlayerWallet wallet);
 		public abstract void Execute(PlayerWallet wallet, T param);
 	}
@@ -49,6 +52,8 @@ namespace CasinoIdler
 
 	public class PurchaseGameFloorAction : PurchaseAction
 	{
+		public override ActionType actionType => ActionType.Purchase;
+
 		private readonly Casino casino;
 
 		public PurchaseGameFloorAction(Casino casino, string name, uint cost) : base(name, cost)
@@ -69,6 +74,8 @@ namespace CasinoIdler
 
 	public class PurchaseGameSlotAction : PurchaseAction
 	{
+		public override ActionType actionType => ActionType.Purchase;
+
 		private readonly GameRoom gameRoom;
 
 		public PurchaseGameSlotAction(GameRoom gameRoom, string name, uint cost) : base(name, cost)
@@ -114,6 +121,8 @@ namespace CasinoIdler
 
 	public class SellGameFloorAction : SellAction
 	{
+		public override ActionType actionType => ActionType.Sell;
+
 		private readonly Casino casino;
 		private readonly GameFloor gameFloor;
 
@@ -131,6 +140,8 @@ namespace CasinoIdler
 
 	public class SellGameRoomAction : SellAction
 	{
+		public override ActionType actionType => ActionType.Sell;
+
 		private readonly GameFloor gameFloor;
 		private readonly GameRoom gameRoom;
 
@@ -148,6 +159,8 @@ namespace CasinoIdler
 
 	public class SellGameSlotAction : SellAction
 	{
+		public override ActionType actionType => ActionType.Sell;
+
 		private readonly GameRoom gameRoom;
 		private readonly GameSlot gameSlot;
 
@@ -165,6 +178,7 @@ namespace CasinoIdler
 
 	public abstract class PurchaseAction<T> : Action<T>
 	{
+
 		public sealed override string Name { get; protected set; }
 		private readonly uint cost;
 
@@ -190,7 +204,9 @@ namespace CasinoIdler
 	}
 
 	public class PurchaseGameRoomAction : PurchaseAction<GameTypes>
-	{
+	{ 
+		public override ActionType actionType => ActionType.Purchase;
+
 		private readonly GameFloor gameFloor;
 
 		public PurchaseGameRoomAction(GameFloor gameFloor, string name, uint cost) : base(name, cost)
@@ -241,6 +257,8 @@ namespace CasinoIdler
 
 	public class GameSlotUpgradeAction : UpgradeAction
 	{
+		public override ActionType actionType => ActionType.Upgrade;
+
 		private readonly GameSlot gameSlot;
 
 		public GameSlotUpgradeAction(GameSlot gameSlot, string name, uint defaultUpgradeCost) : base(name, defaultUpgradeCost)
@@ -272,4 +290,18 @@ namespace CasinoIdler
 		}
 	}
 
+	public enum ActionType
+	{
+		Sell,
+		Purchase,
+		Upgrade
+	}
+
+	public enum ActionedType
+	{
+		Casino,
+		GameFloor,
+		GameRoom,
+		GameSlot
+	}
 }

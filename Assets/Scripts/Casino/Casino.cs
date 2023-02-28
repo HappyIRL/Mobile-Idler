@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using CasinoIdler;
+using UnityEngine;
 using Action = System.Action;
 
 
 public class Casino : ISelectable
 {
-	public Action Unselect { get; set; }
-	public IReadOnlyList<ISelectable> SubSelections => gameFloors;
 	public Action InternalStructureChanged { get; set; }
+	public Action Unselect { get; set; }
 	public string Name => "Casino";
+	public IReadOnlyList<ISelectable> SubSelections => gameFloors;
 	public IReadOnlyList<GameFloor> GameFloors => gameFloors;
 
 
@@ -20,15 +21,16 @@ public class Casino : ISelectable
 
 	public Casino()
 	{
-		CreateGameFloor(GetBaseGameFloorData());
+		CreateGameFloor(GetBaseGameFloorData(), true);
 		CreateCasinoActions();
+		RefreshProductionRate();
 	}
 
 	public Casino(CasinoData data)
 	{
 		foreach (var floorData in data.GameFloorsData)
 		{
-			CreateGameFloor(floorData);
+			CreateGameFloor(floorData, false);
 		}
 
 		CreateCasinoActions();
@@ -38,18 +40,6 @@ public class Casino : ISelectable
 	public uint GetProductionRate()
 	{
 		return productionRate;
-	}
-
-	private void RefreshProductionRate()
-	{
-		uint result = 0;
-
-		foreach (var gameFloor in gameFloors)
-		{
-			result += gameFloor.GetProductionRate();
-		}
-
-		productionRate = result;
 	}
 
 	public CasinoData FetchData()
@@ -67,6 +57,7 @@ public class Casino : ISelectable
 
 		return data;
 	}
+
 	public ICollection<IAction> GetActions()
 	{
 		return actions;
@@ -77,42 +68,48 @@ public class Casino : ISelectable
 		gameFloors.Remove(gameFloor);
 		gameFloor.Unselect?.Invoke();
 
-		InternalStructureChanged.Invoke();
-
 		return BaseGameFloorCost;
 	}
 
 	public void CreateNewGameFloor()
 	{
 		GameFloorData data = GetBaseGameFloorData();
-		data.IsTutorialFloor = false;
 
-		CreateGameFloor(data);
+		CreateGameFloor(data, false);
 	}
 
-	private void CreateGameFloor(GameFloorData data)
+	private void RefreshProductionRate()
 	{
-		GameFloor gameFloor = new GameFloor(data);
+		uint result = 0;
 
-		IAction[] gameFloorActions = { new SellGameFloorAction(this, gameFloor, "Sell GameFloor", 5) };
+		foreach (var gameFloor in gameFloors)
+		{
+			result += gameFloor.GetProductionRate();
+		}
+
+		productionRate = result;
+	}
+
+	private void CreateGameFloor(GameFloorData data, bool isTutorial)
+	{
+		GameFloor gameFloor = new GameFloor(data, isTutorial);
+
+		IAction[] gameFloorActions = {  };//new SellGameFloorAction(this, gameFloor, "Sell GameFloor", 5)
 		gameFloor.InitActions(gameFloorActions);
 		gameFloor.InternalStructureChanged += OnInternalStructureChanged;
-
-		InternalStructureChanged?.Invoke();
 
 		gameFloors.Add(gameFloor);
 	}
 
 	private void CreateCasinoActions()
 	{
-		actions = new List<IAction> { new PurchaseGameFloorAction(this, "Buy GameFloor", BaseGameFloorCost) };
+		actions = new List<IAction> {  }; //new PurchaseGameFloorAction(this, "Buy GameFloor", BaseGameFloorCost)
 	}
 
 	private GameFloorData GetBaseGameFloorData()
 	{
 		GameFloorData data = new GameFloorData
 		{
-			IsTutorialFloor = true,
 			GameRoomsData = null
 		};
 

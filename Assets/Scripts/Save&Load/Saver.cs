@@ -5,7 +5,7 @@ using UnityEngine;
 public class Saver
 {
 	private readonly GameHandler gameHandler;
-	private const string SaveName = "SaveFile.data";
+	private const string SaveName = "/SaveFile.data";
 
 	public Saver(GameHandler gameHandler)
 	{

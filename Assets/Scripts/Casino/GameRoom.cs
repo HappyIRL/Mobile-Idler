@@ -9,7 +9,8 @@ public class GameRoom : ISelectable
 	public IReadOnlyList<ISelectable> SubSelections => gameSlots;
 	public Action InternalStructureChanged { get; set; }
 	public bool CanAddGameSlot => gameSlots.Count < maxGameSlots;
-	public string Name => $"{gameType}Room";
+	public string Name => $"{gameType} Room";
+	public GameTypes GameType => gameType;
 	public IReadOnlyList<GameSlot> GameSlots => gameSlots;
 
 
@@ -47,7 +48,6 @@ public class GameRoom : ISelectable
 		CreateGameSlot(data);
 	}
 
-
 	public ICollection<IAction> GetActions()
 	{
 		return actions;
@@ -65,6 +65,7 @@ public class GameRoom : ISelectable
 		}
 
 		data.GameSlotsData = slotDatas;
+		data.GameType = gameType;
 
 		return data;
 	}

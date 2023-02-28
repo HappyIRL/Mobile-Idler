@@ -5,22 +5,23 @@ using Action = System.Action;
 
 public class GameSlot : ISelectable
 {
-	public System.Action Unselect { get; set; }
+	public Action Unselect { get; set; }
 	public IReadOnlyList<ISelectable> SubSelections => null;
 	public Action InternalStructureChanged { get; set; }
-	public string Name => $"{type} GameSlot";
+	public string Name => GetName();
 	public uint ProductionRate { get; private set; }
+	public GameTypes GameType => gameType;
 
 	private int upgradeLevel; 
 	private uint upgradeCost;
 
 	private List<IAction> actions;
-	private readonly GameTypes type;
+	private readonly GameTypes gameType;
 	private readonly uint maxUpgradeLevel;
 
 	public GameSlot(GameSlotData data)
 	{
-		type = data.Types;
+		gameType = data.Types;
 		upgradeLevel = data.UpgradeLevel;
 		upgradeCost = data.UpgradeCost;
 		ProductionRate = data.ProductionRate;
@@ -31,7 +32,7 @@ public class GameSlot : ISelectable
 	{
 		GameSlotData data = new GameSlotData
 		{
-			Types = type,
+			Types = gameType,
 			UpgradeLevel = this.upgradeLevel,
 			UpgradeCost = this.upgradeCost,
 			ProductionRate = this.ProductionRate,
@@ -39,6 +40,21 @@ public class GameSlot : ISelectable
 		};
 
 		return data;
+	}
+
+	public string GetName()
+	{
+		switch (gameType)
+		{
+			case GameTypes.Blackjack:
+				return "Blackjack Table";
+			case GameTypes.Roulette:
+				return "Roulette Table";
+			case GameTypes.SlotMachine:
+				return "Slot Machine";
+			default:
+			 throw new ArgumentOutOfRangeException();
+		}
 	}
 
 	public void InitActions(IAction[] toAddAction)

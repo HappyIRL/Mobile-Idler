@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Zenject;
 
 public struct Vector2MinMax
 {
@@ -23,17 +24,14 @@ public class PlayerCameraMovement : PlayerInputEventsBehaviour
 	/// 
 	/// </summary>
 
-	[Zenject.Inject] private Selector selector;
-
 	[SerializeField] private Vector2MinMax cameraZoomClamp = new Vector2MinMax(-4, -11);
 	[SerializeField] private float cameraMoveSpeed = 0.5f;
-	[SerializeField] private float cameraZoomSpeed = 20f;
 
 	private Camera camera;	
 	private Transform cameraTransform;
-	private Vector2 touch0Delta;
 	private Vector2MinMax cameraBoardersX = new Vector2MinMax(12f, 14f);
 	private Vector2MinMax cameraBoardersY = new Vector2MinMax(7.5f, 9.5f);
+	private float? touch01Magnitude; 
 
 	private void Awake()
 	{
@@ -41,10 +39,18 @@ public class PlayerCameraMovement : PlayerInputEventsBehaviour
 		cameraTransform = camera.transform;
 	}
 
+	protected override void OnTouch1()
+	{
+		touch01Magnitude = (touch0Position - touch1Position).sqrMagnitude;
+	}
+
+	protected override void OnTouch1Cancelled()
+	{
+		touch01Magnitude = null;
+	}
+
 	protected override void OnTouch0DeltaChange(Vector2 delta)
 	{
-		touch0Delta = delta;
-
 		if (activeTouches != 2)
 		{
 			MoveWithDelta(delta);
@@ -55,59 +61,26 @@ public class PlayerCameraMovement : PlayerInputEventsBehaviour
 	{
 		if (activeTouches == 2)
 		{
-			if(IsABiggerByX(touch0Position, touch1Position))
-				Zoom(touch0Delta, delta);
-			else
-				Zoom(delta, touch0Delta);
+			Zoom(touch0Position, touch1Position);
 		}
 	}
 
-	private void OnNewSelection(Transform transform)
+	private void Zoom(Vector2 touch0, Vector2 touch1)
 	{
-		if(transform != null)
-			MoveToHorizontal(transform.position);
-	}
-
-	private bool IsABiggerByX(Vector2 a, Vector2 b)
-	{
-		if (a.x > b.x)
-			return true;
-
-		return false;
-	}
-
-	[NaughtyAttributes.Button("Out")]
-	private void ZoomIn()
-	{
-		Zoom(new Vector2(0,0), new Vector2(1,0));
-	}
-
-	[NaughtyAttributes.Button("In")]
-	private void ZoomOut()
-	{
-		Zoom(new Vector2(0, 0), new Vector2(-1, 0));
-	}
-
-	private void Zoom(Vector2 x, Vector2 y)
-	{
-		Vector3 newCameraPosition = cameraTransform.position;
-
-		//facing towards - zoom out
-
-		if (x.x == 0 && y.x == 0)
+		if (touch01Magnitude == null)
 			return;
 
-		if (x.x >= 0 && y.x <= 0)
-		{
-			newCameraPosition.z += cameraZoomSpeed * Time.deltaTime;
-		}
-		//facing away - zoom in
-		else if (x.x <= 0 && y.x >= 0)
-		{
-			newCameraPosition.z -= cameraZoomSpeed * Time.deltaTime;
-		}
+		Vector3 newCameraPosition = cameraTransform.position;
+
+		float currentTouch01Magnitude = (touch0 - touch1).sqrMagnitude;
+
+		float magnitudePercentDelta =  touch01Magnitude.Value / currentTouch01Magnitude;
+
+		newCameraPosition.z *= magnitudePercentDelta;
 
 		SetCameraPosition(newCameraPosition);
+
+		touch01Magnitude = currentTouch01Magnitude;
 	}
 
 	private Vector3 GetClampedPosition(Vector3 position)

@@ -13,6 +13,7 @@ public class PlayerInputBroadcast : MonoBehaviour
 	public Action<Vector2> Touch0DeltaChange;
 	public Action<Vector2> Touch1DeltaChange;
 	public Action Touch1;
+	public Action Touch1Cancelled;
 
 	public Vector2 Touch0Position => playerActions.Touch0Position.ReadValue<Vector2>();
 	public Vector2 Touch1Position => playerActions.Touch1Position.ReadValue<Vector2>();
@@ -73,13 +74,18 @@ public class PlayerInputBroadcast : MonoBehaviour
 
 	private void OnTouch0Cancelled(InputAction.CallbackContext obj)
 	{
-		if(activeTouches > 0)
+		if (activeTouches > 0)
+		{
 			activeTouches--;
+		}
 	}
 	private void OnTouch1Cancelled(InputAction.CallbackContext obj)
 	{
 		if (activeTouches > 0)
+		{
 			activeTouches--;
+			Touch1Cancelled?.Invoke();
+		}
 	}
 
 	private void OnTouch0DeltaChange(InputAction.CallbackContext obj)

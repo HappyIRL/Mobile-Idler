@@ -14,6 +14,7 @@ public class PlayerInputEventsBehaviour : MonoBehaviour
 		playerInputBroadcast.Touch0DeltaChange += OnTouch0DeltaChange;
 		playerInputBroadcast.Touch1DeltaChange += OnTouch1DeltaChange;
 		playerInputBroadcast.Touch1 += OnTouch1;
+		playerInputBroadcast.Touch1Cancelled += OnTouch1Cancelled;
 	}
 
 	protected virtual void OnTouch0Tap(Vector2 value)
@@ -24,6 +25,11 @@ public class PlayerInputEventsBehaviour : MonoBehaviour
 	protected virtual void OnTouch1()
 	{
 
+	}
+
+	protected virtual void OnTouch1Cancelled()
+	{
+		
 	}
 
 	protected virtual void OnTouch0DeltaChange(Vector2 value)

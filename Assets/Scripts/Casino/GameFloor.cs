@@ -12,19 +12,16 @@ public class GameFloor : ISelectable
 	public bool CanAddGameRoom => gameRooms.Count < maxGameRooms;
 	public IReadOnlyList<GameRoom> GameRooms => gameRooms;
 
-
-	private bool isTutorialFloor;
 	private List<GameRoom> gameRooms = new List<GameRoom>();
-	private List<IAction> actions;
+	private List<IAction> actions = new List<IAction>();
 	private const uint BaseGameRoomCost = 5;
-	private uint maxGameRooms = 25;
+	private uint maxGameRooms = 36;
 
-	public GameFloor(GameFloorData data)
+	public GameFloor(GameFloorData data, bool isTutorial)
 	{
-		if (data.IsTutorialFloor)
+		if (isTutorial)
 		{
 			CreateGameRoom(GetBaseGameRoomData());
-			isTutorialFloor = true;
 			return;
 		}
 
@@ -49,7 +46,6 @@ public class GameFloor : ISelectable
 		}
 
 		data.GameRoomsData = gameRoomsData;
-		data.IsTutorialFloor = isTutorialFloor;
 
 		return data;
 	}
@@ -81,8 +77,6 @@ public class GameFloor : ISelectable
 
 	public void InitActions(IAction[] toAddAction)
 	{
-		actions = new List<IAction>();
-
 		actions.AddRange(toAddAction);
 		actions.Add(new PurchaseGameRoomAction(this, "Buy GameRoom", BaseGameRoomCost));
 	}
@@ -133,5 +127,4 @@ public class GameFloor : ISelectable
 public struct GameFloorData
 {
 	public GameRoomData[] GameRoomsData;
-	public bool IsTutorialFloor;
 }
