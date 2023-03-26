@@ -7,7 +7,6 @@ using Zenject;
 
 public class GameHandler : MonoBehaviour
 {
-	[Inject] private OnGUISceneView sceneView;
 	[Inject(Id = "floorMap")] private Tilemap floorMap;
 	[Inject] private CasinoSprites casinoSprites;
 	[Inject] private FrontendUI frontendUI;
@@ -57,8 +56,6 @@ public class GameHandler : MonoBehaviour
 		CasinoUIHandler casinoUIHandler = new CasinoUIHandler(casino, casinoSprites, floorMap, casinomap);
 		Selector selector = new Selector(playerCamera, casinoUIHandler, playerInputBroadcast);
 		uiDisplayer = new UIDisplayer(selector, playerWallet, frontendUI, casinoSprites);
-
-		sceneView.Init(playerWallet, selector, casino);
 
 		if(idleTick != null)
 			StopCoroutine(idleTick);

@@ -98,7 +98,7 @@ public partial class @IdleCasinoGame : IInputActionCollection2, IDisposable
                     ""path"": ""<Touchscreen>/touch0/tap"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Touch"",
+                    ""groups"": ""Touch;Keyboard&Mouse"",
                     ""action"": ""Touch0Tap"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -109,7 +109,7 @@ public partial class @IdleCasinoGame : IInputActionCollection2, IDisposable
                     ""path"": ""<Touchscreen>/touch0/position"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Touch"",
+                    ""groups"": ""Touch;Keyboard&Mouse"",
                     ""action"": ""Touch0Position"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -131,7 +131,7 @@ public partial class @IdleCasinoGame : IInputActionCollection2, IDisposable
                     ""path"": ""<Touchscreen>/touch0/press"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Touch"",
+                    ""groups"": ""Touch;Keyboard&Mouse"",
                     ""action"": ""Touch0"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -153,7 +153,7 @@ public partial class @IdleCasinoGame : IInputActionCollection2, IDisposable
                     ""path"": ""<Touchscreen>/touch1/position"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Touch"",
+                    ""groups"": ""Touch;Keyboard&Mouse"",
                     ""action"": ""Touch1Position"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false

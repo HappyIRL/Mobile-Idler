@@ -8,8 +8,7 @@ public class DefaultSceneInstaller : ScriptableObjectInstaller<DefaultSceneInsta
 {
 	[SerializeField] private GameObject mainCameraPrefab, playerInputHandlerPrefab, deviceOrientationPrefab;
 
-	[SerializeField]
-	private GameObject saveHandlerPrefab, gameHandlerPrefab, sceneViewPrefab;
+	[SerializeField] private GameObject saveHandlerPrefab, gameHandlerPrefab;
 
 
 	public override void InstallBindings()
@@ -18,7 +17,6 @@ public class DefaultSceneInstaller : ScriptableObjectInstaller<DefaultSceneInsta
 		Container.Bind<PlayerInputBroadcast>().FromComponentInNewPrefab(playerInputHandlerPrefab).AsSingle().NonLazy();
 		Container.Bind<DeviceOrientationHandler>().FromComponentInNewPrefab(deviceOrientationPrefab).AsSingle().NonLazy();
 		Container.Bind<SaveHandler>().FromComponentInNewPrefab(saveHandlerPrefab).AsSingle().NonLazy();
-		Container.Bind<OnGUISceneView>().FromComponentInNewPrefab(sceneViewPrefab).AsSingle().NonLazy();
 		Container.Bind<GameHandler>().FromComponentInNewPrefab(gameHandlerPrefab).AsSingle().NonLazy();
 
 		Container.BindFactory<GameObject, Transform, PrefabFactory>().FromFactory<NormalPrefabFactory>();
