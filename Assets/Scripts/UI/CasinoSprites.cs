@@ -10,7 +10,7 @@ public class CasinoSprites : ScriptableObject
 	[SerializeField] private Sprite rouletteRoomSprite;
 	[SerializeField] private Sprite blackJackRoomSprite;
 	[SerializeField] private Sprite slotRoomSprite;
-	[SerializeField] private Sprite defaultSprite;
+	[SerializeField] private Sprite floorSprite;
 
 	public Sprite GetSpriteByType(GameTypes type)
 	{
@@ -38,7 +38,12 @@ public class CasinoSprites : ScriptableObject
 			case GameTypes.SlotMachine:
 				return slotRoomSprite;
 			default:
-				return defaultSprite;
+				return floorSprite;
 		}
+	}
+
+	public Sprite GetFloorSprite()
+	{
+		return floorSprite;
 	}
 }

@@ -9,7 +9,7 @@ namespace Assets.Scripts.UI
 	{
 		public abstract ISelectable Selectable { get; }
 		protected abstract void RegisterUiField();
-		protected abstract void UnregisterUiField();
+		protected abstract void UnregisterUIFields();
 		public abstract void OnAction(IAction action);
 	}
 }

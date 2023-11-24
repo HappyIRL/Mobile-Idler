@@ -10,18 +10,18 @@ public class CasinoUI : SelectableUI
 	public override ISelectable Selectable => selectable;
 
 	private ISelectable selectable;
-	private Tilemap tilemap;
+	private Tilemap floorMap;
 	private CasinoSprites casinoSprites;
 	private IReadOnlyList<GameFloor> gameFloors;
 	private int currentGameFloor;
 	private List<SelectableUI>[,] selectableUILists;
-	private Tilemap casinomap;
+	private Tilemap casinoMap;
 
-	public CasinoUI(Casino casino, CasinoSprites casinoSprites, Tilemap tilemap, Tilemap casinomap, List<SelectableUI>[,] selectableUILists)
+	public CasinoUI(Casino casino, CasinoSprites casinoSprites, Tilemap floorMap, Tilemap casinoMap, List<SelectableUI>[,] selectableUILists)
 	{
-		this.casinomap = casinomap;
+		this.casinoMap = casinoMap;
 		this.selectableUILists = selectableUILists;
-		this.tilemap = tilemap;
+		this.floorMap = floorMap;
 		this.casinoSprites = casinoSprites;
 		selectable = casino;
 		gameFloors = casino.GameFloors;
@@ -44,20 +44,20 @@ public class CasinoUI : SelectableUI
 		DrawCasino();
 	}
 
-	protected override void UnregisterUiField()
+	protected override void UnregisterUIFields()
 	{
 
 	}
 
 	private void DrawCasino()
 	{
-		tilemap.ClearAllTiles();
+		floorMap.ClearAllTiles();
 		if (gameFloors.Count < 1)
 			return;
 		GameFloor gameFloor = gameFloors[currentGameFloor];
 		GameFloorUI gameFloorUI = new GameFloorUI();
-		tilemap.ClearAllTiles();
-		gameFloorUI.Init(gameFloor, tilemap, casinomap, casinoSprites, selectableUILists);
+		floorMap.ClearAllTiles();
+		gameFloorUI.Init(gameFloor, floorMap, casinoMap, casinoSprites, selectableUILists);
 	}
 }
 

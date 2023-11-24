@@ -12,19 +12,19 @@ public class GameFloorUI : SelectableUI
 
 	private ISelectable selectable;
 	private GameFloor gameFloor;
-	private Tilemap tileMap;
+	private Tilemap floorMap;
 	private CasinoSprites casinoSprites;
 	private List<SelectableUI>[,] selectableUILists;
-	private Tilemap casinomap;
+	private Tilemap casinoMap;
 
-	public void Init(GameFloor gameFloor, Tilemap tileMap, Tilemap casinomap, CasinoSprites casinoSprites, List<SelectableUI>[,] selectableUIs)
+	public void Init(GameFloor gameFloor, Tilemap floorMap, Tilemap casinoMap, CasinoSprites casinoSprites, List<SelectableUI>[,] selectableUIs)
 	{
-		this.casinomap = casinomap;
+		this.casinoMap = casinoMap;
 		this.selectableUILists = selectableUIs;
 		this.casinoSprites = casinoSprites;
 		this.gameFloor = gameFloor;
 		selectable = gameFloor;
-		this.tileMap = tileMap;
+		this.floorMap = floorMap;
 
 		RegisterUiField();
 		DrawAll();
@@ -42,21 +42,11 @@ public class GameFloorUI : SelectableUI
 	{
 		if (action.actionType == ActionType.Sell)
 		{
-			tileMap.ClearAllTiles();
-			foreach (var list in selectableUILists)
-			{
-				for (int i = 0; i < list.Count; i++)
-				{
-					if (!(list[i] is CasinoUI))
-					{
-						list.RemoveAt(i);
-					}
-				}
-			}
+			UnregisterUIFields();
 		}
 		else
 		{
-			for (int i = 0; i < gameFloor.GameRooms.Count + 1; i++)
+			for (int i = 0; i < gameFloor.GameRooms.Count; i++)
 			{
 				int x = (i % CasinoUIConstants.FLOOR_ROW_SIZE) * CasinoUIConstants.GAMEROOM_SIZE;
 				int y = i / CasinoUIConstants.FLOOR_ROW_SIZE * CasinoUIConstants.GAMEROOM_SIZE;
@@ -75,7 +65,7 @@ public class GameFloorUI : SelectableUI
 		GameRoomUI gameRoomUI = new GameRoomUI();
 		int x = (index % CasinoUIConstants.FLOOR_ROW_SIZE) * CasinoUIConstants.GAMEROOM_SIZE;
 		int y = index / CasinoUIConstants.FLOOR_ROW_SIZE * CasinoUIConstants.GAMEROOM_SIZE;
-		gameRoomUI.Init(gameFloor.GameRooms[index], tileMap, casinomap, new Vector2Int(x, selectableUILists.GetLength(1) - 1 - y), casinoSprites, selectableUILists);
+		gameRoomUI.Init(gameFloor.GameRooms[index], floorMap, casinoMap, new Vector2Int(x, selectableUILists.GetLength(1) - 1 - y), casinoSprites, selectableUILists);
 	}
 
 	protected override void RegisterUiField()
@@ -86,8 +76,18 @@ public class GameFloorUI : SelectableUI
 		}
 	}
 
-	protected override void UnregisterUiField()
+	protected override void UnregisterUIFields()
 	{
-		
+		floorMap.ClearAllTiles();
+		foreach (var list in selectableUILists)
+		{
+			for (int i = 0; i < list.Count; i++)
+			{
+				if (!(list[i] is CasinoUI))
+				{
+					list.RemoveAt(i);
+				}
+			}
+		}
 	}
 }

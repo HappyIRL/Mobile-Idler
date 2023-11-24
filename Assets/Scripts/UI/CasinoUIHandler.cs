@@ -10,7 +10,7 @@ namespace Assets.Scripts.UI
 
 		private readonly SelectableUI rootSelectable;
 
-		public CasinoUIHandler(Casino casino, CasinoSprites casinoSprites, Tilemap tilemap, Tilemap casinomap)
+		public CasinoUIHandler(Casino casino, CasinoSprites casinoSprites, Tilemap floorMap, Tilemap casinoMap)
 		{
 			for (int i = 0; i < selectableUILists.GetLength(0); i++)
 			{
@@ -20,7 +20,7 @@ namespace Assets.Scripts.UI
 				}
 			}
 
-			CasinoUI casinoUI = new CasinoUI(casino, casinoSprites, tilemap, casinomap, selectableUILists);
+			CasinoUI casinoUI = new CasinoUI(casino, casinoSprites, floorMap, casinoMap, selectableUILists);
 			rootSelectable = casinoUI;
 		}
 

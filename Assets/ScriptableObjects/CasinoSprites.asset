@@ -18,4 +18,4 @@ MonoBehaviour:
   rouletteRoomSprite: {fileID: 21300000, guid: ac8b53d001d681548a0a56f40f229c18, type: 3}
   blackJackRoomSprite: {fileID: 21300000, guid: ab6b39f94fe9a244cbe69ad310fcf33c, type: 3}
   slotRoomSprite: {fileID: 21300000, guid: 885f6a371fa186242b13d8074ff4080d, type: 3}
-  defaultSprite: {fileID: 21300000, guid: 13ee2c3797b736248a467f00fd03cfdb, type: 3}
+  floorSprite: {fileID: 21300000, guid: 13ee2c3797b736248a467f00fd03cfdb, type: 3}
