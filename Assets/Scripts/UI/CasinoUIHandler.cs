@@ -24,14 +24,17 @@ namespace Assets.Scripts.UI
 			rootSelectable = casinoUI;
 		}
 
-		public SelectableUI GetCasinoWorldUI(Vector2 worldPos)
+		public Vector2Int GetCasinoWorldPosition(Vector2 worldPos)
 		{
 			Vector2Int flooredWorldPos = Vector2Int.FloorToInt(worldPos);
-			Vector2Int position = new Vector2Int(flooredWorldPos.x - CasinoUIConstants.CASINO_OFFSET, flooredWorldPos.y - CasinoUIConstants.CASINO_OFFSET);
+			return new Vector2Int(flooredWorldPos.x - CasinoUIConstants.CASINO_OFFSET, flooredWorldPos.y - CasinoUIConstants.CASINO_OFFSET);
+		}
 
-			if (IsInsideCasino(position))
+		public SelectableUI GetCasinoUI(Vector2Int casinoPosition)
+		{
+			if (IsInsideCasino(casinoPosition))
 			{
-				SelectableUI selectable = selectableUILists[position.x, position.y][0];
+				SelectableUI selectable = selectableUILists[casinoPosition.x, casinoPosition.y][0];
 				return selectable;
 			}
 

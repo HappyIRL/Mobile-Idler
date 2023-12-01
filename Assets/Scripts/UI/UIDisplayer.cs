@@ -51,38 +51,53 @@ namespace Assets.Scripts.UI
 
 			foreach (IAction selectionAction in selectionActions)
 			{
-				if (selectionAction is CasinoIdler.Action<GameTypes> typedAction)
+				switch (selectionAction)
 				{
-					SetUpTypedUIAction(typedAction, selection);
-				}
-				else if (selectionAction is CasinoIdler.Action walletAction)
-				{
-					SetUpUIAction(walletAction, selection);
-				}
-				else
-				{
-					Debug.Log("Action was neither a typedAction nor walletAction");
+					case CasinoIdler.Action<GameTypes, int, int> typedPositionalAction:
+						SetUpTypedPositionalUIAction(typedPositionalAction, selection);
+						break;
+					case CasinoIdler.Action<int, int> positionalAction:
+						SetUpPositionalUIAction(positionalAction, selection);
+						break;
+					case CasinoIdler.Action walletAction:
+						SetUpWalletUIAction(walletAction, selection);
+						break;
+					default:
+						throw new InvalidOperationException("The selected Action could not be matched!");
 				}
 			}
 		}
 
-		private void SetUpTypedUIAction(CasinoIdler.Action<GameTypes> typedWalletAction, SelectableUI selectableUI)
+		private void SetUpTypedPositionalUIAction(CasinoIdler.Action<GameTypes, int, int> typedPositionalWalletAction, SelectableUI selectableUI)
 		{
 			GameObject go = Object.Instantiate(frontendUI.TypedUIActionPrefab, frontendUI.SelectableUIActionsContainer.transform);
 			TypedUIAction typedUIAction = go.GetComponent<TypedUIAction>();
-			typedUIAction.Action = typedWalletAction;
+			typedUIAction.Action = typedPositionalWalletAction;
 			typedUIAction.SelectableUI = selectableUI;
 			activeActions.Add(typedUIAction);
 
 			typedUIAction.TypeIcon.sprite = casinoSprites.GetSpriteByType(gameTypeOptions[typedUIAction.DisplayedOptionIndex]);
 			typedUIAction.TypedActionButtonPressed += OnTypedButtonPress;
 
-			typedUIAction.ActionButton.interactable = typedWalletAction.CanExecute(playerWallet);
-			typedUIAction.ActionNameText.text = typedWalletAction.Name;
-			typedUIAction.ActionButtonPressed += OnTypedActionButtonPressed;
+			typedUIAction.ActionButton.interactable = typedPositionalWalletAction.CanExecute(playerWallet);
+			typedUIAction.ActionNameText.text = typedPositionalWalletAction.Name;
+			typedUIAction.ActionButtonPressed += OnTypedPositionalActionButtonPressed;
 		}
 
-		private void SetUpUIAction(CasinoIdler.Action walletAction, SelectableUI selectableUI)
+		private void SetUpPositionalUIAction(CasinoIdler.Action<int, int> positionalAction, SelectableUI selectableUI)
+		{
+			GameObject go = Object.Instantiate(frontendUI.UIActionPrefab, frontendUI.SelectableUIActionsContainer.transform);
+			UIAction uiAction = go.GetComponent<UIAction>();
+			uiAction.Action = positionalAction;
+			uiAction.SelectableUI = selectableUI;
+			activeActions.Add(uiAction);
+
+			uiAction.ActionButton.interactable = positionalAction.CanExecute(playerWallet);
+			uiAction.ActionNameText.text = positionalAction.Name;
+			uiAction.ActionButtonPressed += OnPositionalActionButtonPress;
+		}
+
+		private void SetUpWalletUIAction(CasinoIdler.Action walletAction, SelectableUI selectableUI)
 		{
 			GameObject go = Object.Instantiate(frontendUI.UIActionPrefab, frontendUI.SelectableUIActionsContainer.transform);
 			UIAction uiAction = go.GetComponent<UIAction>();
@@ -92,7 +107,7 @@ namespace Assets.Scripts.UI
 
 			uiAction.ActionButton.interactable = walletAction.CanExecute(playerWallet);
 			uiAction.ActionNameText.text = walletAction.Name;
-			uiAction.ActionButtonPressed += OnActionButtonPress;
+			uiAction.ActionButtonPressed += OnWalletActionPress;
 		}
 
 		private void OnTypedButtonPress(TypedUIAction typedUIAction)
@@ -103,24 +118,37 @@ namespace Assets.Scripts.UI
 			typedUIAction.TypeIcon.sprite = casinoSprites.GetSpriteByType(gameTypeOptions[typedUIAction.DisplayedOptionIndex]);
 		}
 
-		private void OnActionButtonPress(UIAction uiAction)
+		private void OnTypedPositionalActionButtonPressed(UIAction uiAction)
 		{
-			CasinoIdler.Action action = uiAction.Action as CasinoIdler.Action;
+			if (uiAction.Action is CasinoIdler.Action<GameTypes, int, int> typedPositionalAction && uiAction is TypedUIAction typedUIAction)
+			{
+				typedPositionalAction.Execute(playerWallet, gameTypeOptions[typedUIAction.DisplayedOptionIndex], selector.SelectedPosition.x, selector.SelectedPosition.y);
 
-			action.Execute(playerWallet);
+				uiAction.SelectableUI.OnAction(typedPositionalAction.actionType, selector.SelectedPosition);
 
-			uiAction.SelectableUI.OnAction(action);
-
-			ClearAllActions();
+				ClearAllActions();
+			}
 		}
 
-		private void OnTypedActionButtonPressed(UIAction uiAction)
+		private void OnPositionalActionButtonPress(UIAction uiAction)
 		{
-			if (uiAction.Action is CasinoIdler.Action<GameTypes> typedAction && uiAction is TypedUIAction typedUIAction)
+			if (uiAction.Action is CasinoIdler.Action<int, int> positionalAction)
 			{
-				typedAction.Execute(playerWallet, gameTypeOptions[typedUIAction.DisplayedOptionIndex]);
+				positionalAction.Execute(playerWallet, selector.SelectedPosition.x, selector.SelectedPosition.y);
 
-				uiAction.SelectableUI.OnAction(typedAction);
+				uiAction.SelectableUI.OnAction(positionalAction.actionType, selector.SelectedPosition);
+
+				ClearAllActions();
+			}
+		}
+
+		private void OnWalletActionPress(UIAction uiAction)
+		{
+			if (uiAction.Action is CasinoIdler.Action walletAction)
+			{
+				walletAction.Execute(playerWallet);
+
+				uiAction.SelectableUI.OnAction(walletAction.actionType, selector.SelectedPosition);
 
 				ClearAllActions();
 			}

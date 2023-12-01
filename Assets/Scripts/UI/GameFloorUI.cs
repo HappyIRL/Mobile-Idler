@@ -5,6 +5,7 @@ using Assets.Scripts.UI;
 using CasinoIdler;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Action = CasinoIdler.Action;
 
 public class GameFloorUI : SelectableUI
 {
@@ -32,40 +33,40 @@ public class GameFloorUI : SelectableUI
 
 	private void DrawAll()
 	{
-		for (int i = 0; i < gameFloor.GameRooms.Count; i++)
+		for (int i = 0; i < gameFloor.GameRooms.Rows; i++)
 		{
-			DrawRoom(i);
-		}
-	}
-
-	public override void OnAction(IAction action)
-	{
-		if (action.actionType == ActionType.Sell)
-		{
-			UnregisterUIFields();
-		}
-		else
-		{
-			for (int i = 0; i < gameFloor.GameRooms.Count; i++)
+			for (int j = 0; j < gameFloor.GameRooms.Columns; j++)
 			{
-				int x = (i % CasinoUIConstants.FLOOR_ROW_SIZE) * CasinoUIConstants.GAMEROOM_SIZE;
-				int y = i / CasinoUIConstants.FLOOR_ROW_SIZE * CasinoUIConstants.GAMEROOM_SIZE;
-
-				if (selectableUILists[x, selectableUILists.GetLength(1) - 1 - y].Count < 3)
+				if (gameFloor.GameRooms[i, j] != null)
 				{
-					DrawRoom(i);
-					break;
+					DrawRoom(i, j);
 				}
 			}
 		}
 	}
 
-	private void DrawRoom(int index)
+	public override void OnAction(ActionType actionType, Vector2Int floorPosition)
+	{
+		switch (actionType)
+		{
+			case ActionType.Sell:
+				UnregisterUIFields();
+				break;
+
+			case ActionType.Purchase:
+				Vector2Int roomPos = floorPosition / 2;
+				DrawRoom(roomPos.x, roomPos.y);
+				break;
+
+			default: 
+				throw new InvalidOperationException("Can't resolve ActionType in GameFloorUI");
+		}
+	}
+
+	private void DrawRoom(int posX, int posY)
 	{
 		GameRoomUI gameRoomUI = new GameRoomUI();
-		int x = (index % CasinoUIConstants.FLOOR_ROW_SIZE) * CasinoUIConstants.GAMEROOM_SIZE;
-		int y = index / CasinoUIConstants.FLOOR_ROW_SIZE * CasinoUIConstants.GAMEROOM_SIZE;
-		gameRoomUI.Init(gameFloor.GameRooms[index], floorMap, casinoMap, new Vector2Int(x, selectableUILists.GetLength(1) - 1 - y), casinoSprites, selectableUILists);
+		gameRoomUI.Init(gameFloor.GameRooms[posX, posY], floorMap, casinoMap, new Vector2Int(posX * 2,posY * 2), casinoSprites, selectableUILists);
 	}
 
 	protected override void RegisterUiField()

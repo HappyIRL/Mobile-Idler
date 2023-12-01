@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Assets.Scripts.UI;
+using Assets.Scripts.Utils;
 using CasinoIdler;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ public class Selector
 	private PlayerCamera playerCamera;
 	private CasinoUIHandler casinoUIHandler;
 
+	public Vector2Int SelectedPosition { get; private set; }
 	public SelectableUI Selection { get; private set; }
 	public SelectableUI OldSelection { get; private set; }
 
@@ -24,7 +26,8 @@ public class Selector
 	protected void OnTouch0Tap(Vector2 touchPos)
 	{
 		Vector2 worldPos = playerCamera.ScreenPointToWorldPos(touchPos);
-		Selection = casinoUIHandler.GetCasinoWorldUI(worldPos);
+		SelectedPosition = casinoUIHandler.GetCasinoWorldPosition(worldPos);
+		Selection = casinoUIHandler.GetCasinoUI(SelectedPosition);
 
 		NewSelection?.Invoke();
 
@@ -35,7 +38,6 @@ public class Selector
 public interface ISelectable
 {
 	public ICollection<IAction> GetActions();
-	public IReadOnlyList<ISelectable> SubSelections { get; }
 	public string Name { get; }
 }
 

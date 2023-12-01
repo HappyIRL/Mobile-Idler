@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Assets.Scripts.Utils;
 using CasinoIdler;
 using Action = System.Action;
 
 public class GameSlot : ISelectable
 {
 	public Action Unselect { get; set; }
-	public IReadOnlyList<ISelectable> SubSelections => null;
 	public Action InternalStructureChanged { get; set; }
 	public string Name => GetName();
 	public uint ProductionRate { get; private set; }
@@ -92,6 +92,8 @@ public class GameSlot : ISelectable
 public struct GameSlotData
 {
 	public GameTypes Types;
+	public int posX;
+	public int posY;
 	public int UpgradeLevel;
 	public uint UpgradeCost;
 	public uint ProductionRate;

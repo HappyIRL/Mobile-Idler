@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Numerics;
 using Assets.Scripts.UI;
 using CasinoIdler;
 using UnityEngine;
@@ -28,7 +29,7 @@ public class CasinoUI : SelectableUI
 		currentGameFloor = 0;
 
 		RegisterUiField();
-		DrawCasino();
+		DrawFloor();
 	}
 
 	protected sealed override void RegisterUiField()
@@ -39,9 +40,9 @@ public class CasinoUI : SelectableUI
 		}
 	}
 
-	public override void OnAction(IAction action)
+	public override void OnAction(ActionType actionType, Vector2Int pos)
 	{
-		DrawCasino();
+		DrawFloor();
 	}
 
 	protected override void UnregisterUIFields()
@@ -49,7 +50,7 @@ public class CasinoUI : SelectableUI
 
 	}
 
-	private void DrawCasino()
+	private void DrawFloor()
 	{
 		floorMap.ClearAllTiles();
 		if (gameFloors.Count < 1)

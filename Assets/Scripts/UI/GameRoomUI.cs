@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using Assets.Scripts.UI;
 using CasinoIdler;
 using UnityEngine;
@@ -49,31 +51,30 @@ public class GameRoomUI : SelectableUI
 			}
 		}
 
-		for (int i = 0; i < gameRoom.GameSlots.Count; i++)
+		for (int i = 0; i < gameRoom.GameSlots.Rows; i++)
 		{
-			DrawGameSlot(i);
+			for (int j = 0; j < gameRoom.GameSlots.Columns; j++)
+			{
+				if (gameRoom.GameSlots[i, j] != null)
+					DrawGameSlot(position.x + i, position.y + j);
+			}
 		}
 	}
 
-	public override void OnAction(IAction action)
+	public override void OnAction(ActionType actionType, Vector2Int floorPos)
 	{
-		if (action.actionType == ActionType.Sell)
+		switch (actionType)
 		{
-			UnregisterUIFields();
-		}
-		else
-		{
-			for (int i = 0; i < CasinoUIConstants.GAMEROOM_SIZE * CasinoUIConstants.GAMEROOM_SIZE; i++)
-			{
-				int x = i % CasinoUIConstants.GAMEROOM_SIZE + position.x;
-				int y = -i / CasinoUIConstants.GAMEROOM_SIZE + position.y;
+			case ActionType.Sell:
+				UnregisterUIFields();
+				break;
 
-				if (selectableUILists[x, y].Count < 4)
-				{
-					DrawGameSlot(i);
-					break;
-				}
-			}
+			case ActionType.Purchase:
+				DrawGameSlot(floorPos.x, floorPos.y);
+				break;
+
+			default:
+				throw new InvalidOperationException("Can't resolve ActionType in GameFloorUI");
 		}
 	}
 
@@ -89,7 +90,6 @@ public class GameRoomUI : SelectableUI
 			tile.sprite = typedSprite;
 
 			casinoMap.SetTile(new Vector3Int(x, y, 0), tile);
-
 			selectableUILists[x, y].Insert(0, this);
 		}
 	}
@@ -118,13 +118,9 @@ public class GameRoomUI : SelectableUI
 		}
 	}
 
-	private void DrawGameSlot(int index)
+	private void DrawGameSlot(int posX, int posY)
 	{
 		GameSlotUI gameSlotUI = new GameSlotUI();
-
-		int x = index % CasinoUIConstants.GAMEROOM_SIZE + position.x;
-		int y = -index / CasinoUIConstants.GAMEROOM_SIZE + position.y;
-
-		gameSlotUI.Init(gameRoom.GameSlots[index], floorMap, new Vector2Int(x, y), casinoSprites, selectableUILists, this);
+		gameSlotUI.Init(gameRoom.GameSlots[posX % 2, posY % 2], floorMap, new Vector2Int(posX, posY), casinoSprites, selectableUILists, this);
 	}
 }

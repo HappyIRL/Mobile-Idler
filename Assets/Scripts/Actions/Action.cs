@@ -1,3 +1,6 @@
+using System.Numerics;
+using NaughtyAttributes.Test;
+
 namespace CasinoIdler
 {
 	public interface IAction
@@ -15,12 +18,20 @@ namespace CasinoIdler
 		public abstract void Execute(PlayerWallet wallet);
 	}
 
-	public abstract class Action<T> : IAction
+	public abstract class Action<T1, T2, T3> : IAction
 	{
-		public  virtual string Name { get; protected set; }
+		public virtual string Name { get; protected set; }
 		public abstract ActionType actionType { get; }
 		public abstract bool CanExecute(PlayerWallet wallet);
-		public abstract void Execute(PlayerWallet wallet, T param);
+		public abstract void Execute(PlayerWallet wallet, T1 param1, T2 pram2, T3 param3);
+	}
+
+	public abstract class Action<T1, T2> : IAction
+	{
+		public virtual string Name { get; protected set; }
+		public abstract ActionType actionType { get; }
+		public abstract bool CanExecute(PlayerWallet wallet);
+		public abstract void Execute(PlayerWallet wallet, T1 param1, T2 param2);
 	}
 
 	public abstract class PurchaseAction : Action
@@ -50,6 +61,33 @@ namespace CasinoIdler
 		}
 	}
 
+	public abstract class PurchaseAction<T1, T2> : Action<T1, T2>
+	{
+		public sealed override string Name { get; protected set; }
+		private readonly uint cost;
+
+		protected PurchaseAction(string name, uint cost)
+		{
+			this.cost = cost;
+			Name = $"{name}: {cost}$";
+		}
+
+		protected abstract void Purchase(T1 posX, T2 posY);
+
+		protected abstract bool CanPurchase();
+
+		public override bool CanExecute(PlayerWallet wallet)
+		{
+			return CanPurchase() && wallet.CheckWalletFor(cost);
+		}
+
+		public override void Execute(PlayerWallet wallet, T1 posX, T2 posY)
+		{
+			wallet.Withdraw(cost);
+			Purchase(posX, posY);
+		}
+	}
+
 	public class PurchaseGameFloorAction : PurchaseAction
 	{
 		public override ActionType actionType => ActionType.Purchase;
@@ -72,7 +110,7 @@ namespace CasinoIdler
 		}
 	}
 
-	public class PurchaseGameSlotAction : PurchaseAction
+	public class PurchaseGameSlotAction : PurchaseAction<int, int>
 	{
 		public override ActionType actionType => ActionType.Purchase;
 
@@ -83,9 +121,9 @@ namespace CasinoIdler
 			this.gameRoom = gameRoom;
 		}
 
-		protected override void Purchase()
+		protected override void Purchase(int posX, int posY)
 		{
-			gameRoom.CreateNewGameSlot();
+			gameRoom.CreateNewGameSlot(posX, posY);
 		}
 
 		protected override bool CanPurchase()
@@ -176,7 +214,7 @@ namespace CasinoIdler
 		}
 	}
 
-	public abstract class PurchaseAction<T> : Action<T>
+	public abstract class PurchaseAction<T1, T2, T3> : Action<T1, T2, T3>
 	{
 
 		public sealed override string Name { get; protected set; }
@@ -188,7 +226,7 @@ namespace CasinoIdler
 			this.cost = cost;
 		}
 
-		protected abstract void Purchase(T type);
+		protected abstract void Purchase(T1 type, T2 posX, T3 posY);
 		protected abstract bool CanPurchase();
 
 		public override bool CanExecute(PlayerWallet wallet)
@@ -196,14 +234,14 @@ namespace CasinoIdler
 			return wallet.CheckWalletFor(cost) && CanPurchase();
 		}
 
-		public override void Execute(PlayerWallet wallet, T type)
+		public override void Execute(PlayerWallet wallet, T1 type, T2 posX, T3 posY)
 		{
 			wallet.Withdraw(cost);
-			Purchase(type);
+			Purchase(type, posX, posY);
 		}
 	}
 
-	public class PurchaseGameRoomAction : PurchaseAction<GameTypes>
+	public class PurchaseGameRoomAction : PurchaseAction<GameTypes, int, int>
 	{ 
 		public override ActionType actionType => ActionType.Purchase;
 
@@ -214,9 +252,9 @@ namespace CasinoIdler
 			this.gameFloor = gameFloor;
 		}
 
-		protected override void Purchase(GameTypes type)
+		protected override void Purchase(GameTypes type, int posX, int posY)
 		{
-			gameFloor.CreateNewGameRoom(type);
+			gameFloor.CreateNewGameRoom(type, posX, posY);
 		}
 
 		protected override bool CanPurchase()

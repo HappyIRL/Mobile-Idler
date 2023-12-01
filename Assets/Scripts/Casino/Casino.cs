@@ -10,7 +10,6 @@ public class Casino : ISelectable
 	public Action InternalStructureChanged { get; set; }
 	public Action Unselect { get; set; }
 	public string Name => "Casino";
-	public IReadOnlyList<ISelectable> SubSelections => gameFloors;
 	public IReadOnlyList<GameFloor> GameFloors => gameFloors;
 
 

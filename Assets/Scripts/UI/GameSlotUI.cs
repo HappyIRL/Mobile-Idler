@@ -15,7 +15,7 @@ public class GameSlotUI : SelectableUI
 	private List<SelectableUI>[,] selectableUILists;
 	private Vector2Int position;
 
-	//R E M O V E THIS
+	//R E M O V E THIS calls upwards!
 	private GameRoomUI gameRoomUi;
 
 	public void Init(GameSlot gameSlot, Tilemap floorMap, Vector2Int position, CasinoSprites casinoSprites, List<SelectableUI>[,] selectableUIs, GameRoomUI gameroomUI)
@@ -32,9 +32,9 @@ public class GameSlotUI : SelectableUI
 		DrawGameSlot();
 	}
 
-	public override void OnAction(IAction action)
+	public override void OnAction(ActionType actionType, Vector2Int pos)
 	{
-		if (action.actionType == ActionType.Sell)
+		if (actionType == ActionType.Sell)
 		{
 			UnregisterUIFields();
 		}
