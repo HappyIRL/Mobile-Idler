@@ -6,8 +6,8 @@ namespace Assets.Scripts.Utils
 {
 	public interface IReadOnlyTwoDimensionalArray<T> : IEnumerable<T>
 	{
-		int Rows { get; }
 		int Columns { get; }
+		int Rows { get; }
 
 		//indexer that allows an object to be accessed using square brackets, providing a way to retrieve or set values based on specified indices.
 		T this[int row, int col] { get; }
@@ -17,15 +17,15 @@ namespace Assets.Scripts.Utils
 	{
 		private readonly T[,] array;
 
-		public int Rows => array.GetLength(0);
-		public int Columns => array.GetLength(1);
+		public int Columns => array.GetLength(0);
+		public int Rows => array.GetLength(1);
 
 		public ReadOnlyTwoDimensionalArray(T[,] array)
 		{
 			this.array = array ?? throw new ArgumentNullException(nameof(array));
 		}
 
-		public T this[int row, int col] => array[row, col];
+		public T this[int col, int row] => array[col, row];
 
 		public IEnumerator<T> GetEnumerator()
 		{

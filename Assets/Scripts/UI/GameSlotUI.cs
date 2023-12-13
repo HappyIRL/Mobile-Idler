@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using Assets.Scripts.UI;
 using CasinoIdler;
 using UnityEngine;
@@ -24,9 +25,9 @@ public class GameSlotUI : SelectableUI
 		this.selectableUILists = selectableUIs;
 		this.floorMap = floorMap;
 		this.gameSlot = gameSlot;
-		selectable = gameSlot;
 		this.gameRoomUi = gameroomUI;
 		this.casinoSprites = casinoSprites;
+		selectable = gameSlot;
 
 		RegisterUiField();
 		DrawGameSlot();
@@ -52,12 +53,12 @@ public class GameSlotUI : SelectableUI
 
 	protected override void RegisterUiField()
 	{
-		selectableUILists[position.x, position.y].Insert(0, this);
+		selectableUILists[position.x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - position.y].Insert(0, this);
 	}
 
 	protected override void UnregisterUIFields()
 	{
-		selectableUILists[position.x, position.y].Remove(this);
+		selectableUILists[position.x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - position.y].Remove(this);
 		floorMap.SetTile(new Vector3Int(position.x, position.y, 0), null);
 		gameRoomUi.DrawAll();
 	}

@@ -8,7 +8,7 @@ public class GameRoom : ISelectable
 {
 	public System.Action Unselect { get; set; }
 	public Action InternalStructureChanged { get; set; }
-	public bool CanAddGameSlot => gameSlots.Length < maxGameSlots;
+	public bool CanAddGameSlot => gameSlotCount < maxGameSlots;
 	public string Name => $"{gameType} Room";
 	public GameTypes GameType => gameType;
 
@@ -17,9 +17,9 @@ public class GameRoom : ISelectable
 
 	private GameSlot[,] gameSlots = new GameSlot[2,2];
 	private List<IAction> actions;
-	private int maxGameSlots => gameSlots.Length;
 	private GameTypes gameType;
-
+	private int maxGameSlots => gameSlots.Length;
+	private int gameSlotCount = 0;
 	private const uint BaseGameSlotCost = 5;
 	private const uint BaseUpgradeGameSlotCost = 5;
 
@@ -42,11 +42,12 @@ public class GameRoom : ISelectable
 		}
 	}
 
-	public void CreateNewGameSlot(int posX, int posY)
+	public void CreateNewGameSlot(int floorPosX, int floorPosY)
 	{
 		GameSlotData data = GetBaseGameSlotData();
-		data.posX = posX;
-		data.posY = posY;
+
+		data.posX = floorPosX % 2; ;
+		data.posY = (floorPosY % 2 == 0) ? 1 : 0;
 
 		CreateGameSlot(data);
 	}
@@ -60,14 +61,14 @@ public class GameRoom : ISelectable
 	{
 		GameRoomData data = new GameRoomData();
 
-		int rows = gameSlots.GetLength(0);
-		int columns = gameSlots.GetLength(1);
+		int cols = gameSlots.GetLength(0);
+		int rows = gameSlots.GetLength(1);
 
-		GameSlotData[,] slotDatas = new GameSlotData[rows, columns];
+		GameSlotData[,] slotDatas = new GameSlotData[cols, rows];
 
-		for (int i = 0; i < rows; i++)
+		for (int i = 0; i < cols; i++)
 		{
-			for (int j = 0; j < columns; j++)
+			for (int j = 0; j < rows; j++)
 			{
 				if (gameSlots[i, j] != null)
 					slotDatas[i, j] = gameSlots[i, j].FetchData();
@@ -90,31 +91,31 @@ public class GameRoom : ISelectable
 
 	public uint RemoveGameSlot(GameSlot gameSlot)
 	{
-		int rows = gameSlots.GetLength(0);
-		int cols = gameSlots.GetLength(1);
+		int cols = gameSlots.GetLength(0);
+		int rows = gameSlots.GetLength(1);
 
-		int removeRow = -1;
 		int removeCol = -1;
+		int removeRow = -1;
 
-		for (int i = 0; i < rows; i++)
+		for (int i = 0; i < cols; i++)
 		{
-			for (int j = 0; j < cols; j++)
+			for (int j = 0; j < rows; j++)
 			{
 				if (gameSlots[i, j] == gameSlot)
 				{
-					removeRow = i;
-					removeCol = j;
+					removeCol = i;
+					removeRow = j;
 					break;
 				}
 			}
 
-			if (removeRow != -1)
+			if (removeCol != -1)
 				break;
 		}
 
-		if (removeRow != -1)
+		if (removeCol != -1)
 		{
-			gameSlots[removeRow, removeCol] = null;
+			gameSlots[removeCol, removeRow] = null;
 		}
 		else
 		{
@@ -122,6 +123,7 @@ public class GameRoom : ISelectable
 		}
 
 		gameSlot.Unselect?.Invoke();
+		gameSlotCount--;
 
 		InternalStructureChanged.Invoke();
 
@@ -153,6 +155,7 @@ public class GameRoom : ISelectable
 		gameSlot.InternalStructureChanged += OnInternalStructureChanged;
 
 		gameSlots[data.posX, data.posY] = gameSlot;
+		gameSlotCount++;
 
 		InternalStructureChanged?.Invoke();
 	}

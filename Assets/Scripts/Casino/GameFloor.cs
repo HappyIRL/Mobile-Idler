@@ -11,11 +11,12 @@ public class GameFloor : ISelectable
 	public System.Action Unselect { get; set; }
 	public Action InternalStructureChanged { get; set; }
 	public IReadOnlyTwoDimensionalArray<GameRoom> GameRooms => new ReadOnlyTwoDimensionalArray<GameRoom>(gameRooms);
-	public bool CanAddGameRoom => gameRooms.Length < maxGameRooms;
+	public bool CanAddGameRoom => gameRoomCount < maxGameRooms;
 
-	private GameRoom[,] gameRooms = new GameRoom[9, 4];
+	private GameRoom[,] gameRooms = new GameRoom[CasinoUIConstants.FLOOR_COLS / 2, CasinoUIConstants.FLOOR_ROWS / 2];
 	private List<IAction> actions = new List<IAction>();
 	private const uint BaseGameRoomCost = 5;
+	private int gameRoomCount = 0;
 	private int maxGameRooms => gameRooms.Length;
 
 	public GameFloor(GameFloorData data, bool isTutorial)
@@ -58,45 +59,45 @@ public class GameFloor : ISelectable
 		return data;
 	}
 
-	public void CreateNewGameRoom(GameTypes type, int posX, int posY)
+	public void CreateNewGameRoom(GameTypes type, int floorPosX, int floorPosY)
 	{
 		GameRoomData data = GetBaseGameRoomData();
 
 		data.GameType = type;
 		data.IsTutorialRoom = false;
-		data.posX = posX;
-		data.posY = posY;
+		data.posX = floorPosX / 2;
+		data.posY = (CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - floorPosY) / 2;
 
 		CreateGameRoom(data);
 	}
 
 	public uint RemoveGameRoom(GameRoom gameRoom)
 	{
-		int rows = gameRooms.GetLength(0);
-		int cols = gameRooms.GetLength(1);
+		int cols = gameRooms.GetLength(0);
+		int rows = gameRooms.GetLength(1);
 
-		int removeRow = -1;
 		int removeCol = -1;
+		int removeRow = -1;
 
-		for (int i = 0; i < rows; i++)
+		for (int i = 0; i < cols; i++)
 		{
-			for (int j = 0; j < cols; j++)
+			for (int j = 0; j < rows; j++)
 			{
 				if (gameRooms[i, j] == gameRoom)
 				{
-					removeRow = i;
-					removeCol = j;
+					removeCol = i;
+					removeRow = j;
 					break;
 				}
 			}
 
-			if (removeRow != -1)
+			if (removeCol != -1)
 				break;
 		}
 
-		if (removeRow != -1)
+		if (removeCol != -1)
 		{
-			gameRooms[removeRow, removeCol] = null;
+			gameRooms[removeCol, removeRow] = null;
 		}
 		else
 		{
@@ -104,6 +105,7 @@ public class GameFloor : ISelectable
 		}
 
 		gameRoom.Unselect?.Invoke();
+		gameRoomCount--;
 
 		InternalStructureChanged.Invoke();
 
@@ -146,6 +148,7 @@ public class GameFloor : ISelectable
 		gameRoom.InternalStructureChanged += OnInternalStructureChanged;
 
 		gameRooms[data.posX, data.posY] = gameRoom;
+		gameRoomCount++;
 
 		InternalStructureChanged?.Invoke();
 	}

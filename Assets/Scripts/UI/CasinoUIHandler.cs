@@ -6,7 +6,7 @@ namespace Assets.Scripts.UI
 {
 	public class CasinoUIHandler
 	{
-		private List<SelectableUI>[,] selectableUILists = new List<SelectableUI>[18, 8];
+		private List<SelectableUI>[,] selectableUILists = new List<SelectableUI>[CasinoUIConstants.FLOOR_COLS, CasinoUIConstants.FLOOR_ROWS];
 
 		private readonly SelectableUI rootSelectable;
 
@@ -34,7 +34,7 @@ namespace Assets.Scripts.UI
 		{
 			if (IsInsideCasino(casinoPosition))
 			{
-				SelectableUI selectable = selectableUILists[casinoPosition.x, casinoPosition.y][0];
+				SelectableUI selectable = selectableUILists[casinoPosition.x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - casinoPosition.y][0];
 				return selectable;
 			}
 

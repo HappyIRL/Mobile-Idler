@@ -64,7 +64,12 @@ public class CasinoUI : SelectableUI
 
 public static class CasinoUIConstants
 {
-	public const int FLOOR_ROW_SIZE = 9;
 	public const int GAMEROOM_SIZE = 2;
 	public const int CASINO_OFFSET = 4;
+
+	//can only ever be a multiple of 2
+	public const int FLOOR_COLS = 18;
+	public const int FLOOR_ROWS = 8;
+	public const int LAST_FLOOR_ROWS_INDEX = FLOOR_ROWS - 1;
+
 }

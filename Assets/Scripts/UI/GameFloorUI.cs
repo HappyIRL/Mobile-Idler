@@ -33,13 +33,15 @@ public class GameFloorUI : SelectableUI
 
 	private void DrawAll()
 	{
-		for (int i = 0; i < gameFloor.GameRooms.Rows; i++)
+		for (int i = 0; i < gameFloor.GameRooms.Columns; i++)
 		{
-			for (int j = 0; j < gameFloor.GameRooms.Columns; j++)
+			for (int j = 0; j < gameFloor.GameRooms.Rows; j++)
 			{
 				if (gameFloor.GameRooms[i, j] != null)
 				{
-					DrawRoom(i, j);
+					//conversion from array index to floor position
+					Vector2Int floorPos = RoomToFloorPos(i, j);
+					DrawRoom(new Vector2Int(floorPos.x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - floorPos.y));
 				}
 			}
 		}
@@ -54,8 +56,7 @@ public class GameFloorUI : SelectableUI
 				break;
 
 			case ActionType.Purchase:
-				Vector2Int roomPos = floorPosition / 2;
-				DrawRoom(roomPos.x, roomPos.y);
+				DrawRoom(floorPosition);
 				break;
 
 			default: 
@@ -63,10 +64,22 @@ public class GameFloorUI : SelectableUI
 		}
 	}
 
-	private void DrawRoom(int posX, int posY)
+	private void DrawRoom(Vector2Int floorPosition)
 	{
+		Vector2Int roomAnchorPos = (floorPosition / 2) * 2 + new Vector2Int(0,1);
 		GameRoomUI gameRoomUI = new GameRoomUI();
-		gameRoomUI.Init(gameFloor.GameRooms[posX, posY], floorMap, casinoMap, new Vector2Int(posX * 2,posY * 2), casinoSprites, selectableUILists);
+		Vector2Int roomPos = FloorToRoomPos(roomAnchorPos.x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - roomAnchorPos.y);
+		gameRoomUI.Init(gameFloor.GameRooms[roomPos.x, roomPos.y], floorMap, casinoMap, roomAnchorPos, casinoSprites, selectableUILists);
+	}
+
+	private Vector2Int RoomToFloorPos(int x, int y)
+	{
+		return new Vector2Int(x * 2, y * 2);
+	}
+
+	private Vector2Int FloorToRoomPos(int x, int y)
+	{
+		return new Vector2Int(x / 2, y / 2);
 	}
 
 	protected override void RegisterUiField()

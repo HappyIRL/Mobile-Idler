@@ -25,9 +25,8 @@ public class GameRoomUI : SelectableUI
 		this.selectableUILists = selectableUIs;
 		this.floorMap = floorMap;
 		this.gameRoom = gameRoom;
-		selectable = gameRoom;
-
 		this.casinoSprites = casinoSprites;
+		selectable = gameRoom;
 
 		RegisterUiField();
 		DrawAll();
@@ -40,12 +39,12 @@ public class GameRoomUI : SelectableUI
 			int x = i % CasinoUIConstants.GAMEROOM_SIZE + position.x;
 			int y = -i / CasinoUIConstants.GAMEROOM_SIZE + position.y;
 
-			for (var j = 0; j < selectableUILists[x, y].Count; j++)
+			for (var j = 0; j < selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y].Count; j++)
 			{
-				SelectableUI selectableUI = selectableUILists[x, y][j];
+				SelectableUI selectableUI = selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y][j];
 				if (selectableUI is GameSlotUI)
 				{
-					selectableUILists[x, y].RemoveAt(j);
+					selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y].RemoveAt(j);
 					floorMap.SetTile(new Vector3Int(x, y, 0), null);
 				}
 			}
@@ -56,7 +55,7 @@ public class GameRoomUI : SelectableUI
 			for (int j = 0; j < gameRoom.GameSlots.Columns; j++)
 			{
 				if (gameRoom.GameSlots[i, j] != null)
-					DrawGameSlot(position.x + i, position.y + j);
+					DrawGameSlot(new Vector2Int(position.x + i, position.y - j));
 			}
 		}
 	}
@@ -70,7 +69,7 @@ public class GameRoomUI : SelectableUI
 				break;
 
 			case ActionType.Purchase:
-				DrawGameSlot(floorPos.x, floorPos.y);
+				DrawGameSlot(floorPos);
 				break;
 
 			default:
@@ -90,7 +89,9 @@ public class GameRoomUI : SelectableUI
 			tile.sprite = typedSprite;
 
 			casinoMap.SetTile(new Vector3Int(x, y, 0), tile);
-			selectableUILists[x, y].Insert(0, this);
+
+			//conversion to array position from floor position
+			selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y].Insert(0, this);
 		}
 	}
 
@@ -101,12 +102,12 @@ public class GameRoomUI : SelectableUI
 			int x = i % CasinoUIConstants.GAMEROOM_SIZE + position.x;
 			int y = -i / CasinoUIConstants.GAMEROOM_SIZE + position.y;
 
-			for (var j = selectableUILists[x, y].Count -1; j >= 0; j--)
+			for (var j = selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y].Count -1; j >= 0; j--)
 			{
-				SelectableUI selectableUI = selectableUILists[x, y][j];
+				SelectableUI selectableUI = selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y][j];
 				if (selectableUI is GameRoomUI || selectableUI is GameSlotUI)
 				{
-					selectableUILists[x, y].RemoveAt(j);
+					selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y].RemoveAt(j);
 					floorMap.SetTile(new Vector3Int(x, y, 0), null);
 
 					Tile tile = ScriptableObject.CreateInstance<Tile>();
@@ -118,9 +119,11 @@ public class GameRoomUI : SelectableUI
 		}
 	}
 
-	private void DrawGameSlot(int posX, int posY)
+	private void DrawGameSlot(Vector2Int floorPos)
 	{
 		GameSlotUI gameSlotUI = new GameSlotUI();
-		gameSlotUI.Init(gameRoom.GameSlots[posX % 2, posY % 2], floorMap, new Vector2Int(posX, posY), casinoSprites, selectableUILists, this);
+		int x = floorPos.x % 2;
+		int y = (floorPos.y % 2 == 0) ? 1 : 0;
+		gameSlotUI.Init(gameRoom.GameSlots[x, y], floorMap, floorPos, casinoSprites, selectableUILists, this);
 	}
 }
