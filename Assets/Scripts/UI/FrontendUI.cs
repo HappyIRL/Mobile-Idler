@@ -21,5 +21,8 @@ namespace Assets.Scripts.UI
 		[SerializeField] private GameObject typedUIActionPrefab;
 		public GameObject TypedUIActionPrefab => typedUIActionPrefab;
 
+		[SerializeField] private GameObject floorSelectUIActionPrefab;
+		public GameObject FloorSelectUIActionPrefab => floorSelectUIActionPrefab;
+
 	}
 }

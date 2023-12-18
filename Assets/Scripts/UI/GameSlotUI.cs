@@ -11,21 +11,17 @@ public class GameSlotUI : SelectableUI
 
 	private ISelectable selectable;
 	private CasinoSprites casinoSprites;
-	private Tilemap floorMap;
+	private Tilemap slotMap;
 	private GameSlot gameSlot;
 	private List<SelectableUI>[,] selectableUILists;
 	private Vector2Int position;
 
-	//R E M O V E THIS calls upwards!
-	private GameRoomUI gameRoomUi;
-
-	public void Init(GameSlot gameSlot, Tilemap floorMap, Vector2Int position, CasinoSprites casinoSprites, List<SelectableUI>[,] selectableUIs, GameRoomUI gameroomUI)
+	public void Init(GameSlot gameSlot, Tilemap slotMap, Vector2Int position, CasinoSprites casinoSprites, List<SelectableUI>[,] selectableUIs)
 	{
 		this.position = position;
 		this.selectableUILists = selectableUIs;
-		this.floorMap = floorMap;
+		this.slotMap = slotMap;
 		this.gameSlot = gameSlot;
-		this.gameRoomUi = gameroomUI;
 		this.casinoSprites = casinoSprites;
 		selectable = gameSlot;
 
@@ -48,7 +44,7 @@ public class GameSlotUI : SelectableUI
 		Sprite test = casinoSprites.GetSpriteByType(gameSlot.GameType);
 		tile.sprite = test;
 
-		floorMap.SetTile(new Vector3Int(position.x, position.y, 0), tile);
+		slotMap.SetTile(new Vector3Int(position.x, position.y, 0), tile);
 	}
 
 	protected override void RegisterUiField()
@@ -59,7 +55,6 @@ public class GameSlotUI : SelectableUI
 	protected override void UnregisterUIFields()
 	{
 		selectableUILists[position.x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - position.y].Remove(this);
-		floorMap.SetTile(new Vector3Int(position.x, position.y, 0), null);
-		gameRoomUi.DrawAll();
+		slotMap.SetTile(new Vector3Int(position.x, position.y, 0), null);
 	}
 }

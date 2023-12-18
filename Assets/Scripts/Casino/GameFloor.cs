@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using Assets.Scripts.Utils;
 using CasinoIdler;
-using UnityEngine;
 using Action = System.Action;
 
 public class GameFloor : ISelectable
 {
 	public string Name => "Floor";
-	public System.Action Unselect { get; set; }
+	public Action Unselect { get; set; }
 	public Action InternalStructureChanged { get; set; }
 	public IReadOnlyTwoDimensionalArray<GameRoom> GameRooms => new ReadOnlyTwoDimensionalArray<GameRoom>(gameRooms);
 	public bool CanAddGameRoom => gameRoomCount < maxGameRooms;
@@ -16,7 +15,7 @@ public class GameFloor : ISelectable
 	private GameRoom[,] gameRooms = new GameRoom[CasinoUIConstants.FLOOR_COLS / 2, CasinoUIConstants.FLOOR_ROWS / 2];
 	private List<IAction> actions = new List<IAction>();
 	private const uint BaseGameRoomCost = 5;
-	private int gameRoomCount = 0;
+	private int gameRoomCount;
 	private int maxGameRooms => gameRooms.Length;
 
 	public GameFloor(GameFloorData data, bool isTutorial)

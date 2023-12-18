@@ -11,12 +11,13 @@ public class Casino : ISelectable
 	public Action Unselect { get; set; }
 	public string Name => "Casino";
 	public IReadOnlyList<GameFloor> GameFloors => gameFloors;
-
+	public bool CanAddGameFloor => gameFloors.Count < maxGameFloors;
 
 	private List<GameFloor> gameFloors = new List<GameFloor>();
 	private List<IAction> actions;
 	private uint productionRate;
 	private const uint BaseGameFloorCost = 5;
+	private uint maxGameFloors = 2;
 
 	public Casino()
 	{
@@ -93,7 +94,7 @@ public class Casino : ISelectable
 	{
 		GameFloor gameFloor = new GameFloor(data, isTutorial);
 
-		IAction[] gameFloorActions = {  };//new SellGameFloorAction(this, gameFloor, "Sell GameFloor", 5)
+		IAction[] gameFloorActions = { new SellGameFloorAction(this, gameFloor, "Sell GameFloor", 5) };
 		gameFloor.InitActions(gameFloorActions);
 		gameFloor.InternalStructureChanged += OnInternalStructureChanged;
 
@@ -102,7 +103,7 @@ public class Casino : ISelectable
 
 	private void CreateCasinoActions()
 	{
-		actions = new List<IAction> {  }; //new PurchaseGameFloorAction(this, "Buy GameFloor", BaseGameFloorCost)
+		actions = new List<IAction> { new PurchaseGameFloorAction(this, "Buy GameFloor", BaseGameFloorCost) };
 	}
 
 	private GameFloorData GetBaseGameFloorData()

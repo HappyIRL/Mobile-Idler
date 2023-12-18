@@ -10,7 +10,7 @@ namespace Assets.Scripts.UI
 
 		private readonly SelectableUI rootSelectable;
 
-		public CasinoUIHandler(Casino casino, CasinoSprites casinoSprites, Tilemap floorMap, Tilemap casinoMap)
+		public CasinoUIHandler(Casino casino, CasinoSprites casinoSprites, Tilemap roomMap, Tilemap slotMap)
 		{
 			for (int i = 0; i < selectableUILists.GetLength(0); i++)
 			{
@@ -20,7 +20,7 @@ namespace Assets.Scripts.UI
 				}
 			}
 
-			CasinoUI casinoUI = new CasinoUI(casino, casinoSprites, floorMap, casinoMap, selectableUILists);
+			CasinoUI casinoUI = new CasinoUI(casino, casinoSprites, roomMap, slotMap, selectableUILists);
 			rootSelectable = casinoUI;
 		}
 
@@ -43,7 +43,7 @@ namespace Assets.Scripts.UI
 
 		private bool IsInsideCasino(Vector2 vec)
 		{
-			if (vec.x >= 0 && vec.x < 18 && vec.y >= 0 && vec.y < 8)
+			if (vec.x >= 0 && vec.x < CasinoUIConstants.FLOOR_COLS && vec.y >= 0 && vec.y < CasinoUIConstants.FLOOR_ROWS)
 				return true;
 
 			return false;

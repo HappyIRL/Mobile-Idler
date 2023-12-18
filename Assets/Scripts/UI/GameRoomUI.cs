@@ -12,18 +12,18 @@ public class GameRoomUI : SelectableUI
 
 	private ISelectable selectable;
 	private GameRoom gameRoom;
-	private Tilemap floorMap;
-	private Tilemap casinoMap;
+	private Tilemap roomMap;
+	private Tilemap slotMap;
 	private CasinoSprites casinoSprites;
 	private List<SelectableUI>[,] selectableUILists;
 	private Vector2Int position;
 
-	public void Init(GameRoom gameRoom, Tilemap floorMap, Tilemap casinoMap, Vector2Int position, CasinoSprites casinoSprites, List<SelectableUI>[,] selectableUIs)
+	public void Init(GameRoom gameRoom, Tilemap roomMap, Tilemap slotMap,Vector2Int position, CasinoSprites casinoSprites, List<SelectableUI>[,] selectableUILists)
 	{
-		this.casinoMap = casinoMap;
 		this.position = position;
-		this.selectableUILists = selectableUIs;
-		this.floorMap = floorMap;
+		this.selectableUILists = selectableUILists;
+		this.roomMap = roomMap;
+		this.slotMap = slotMap;
 		this.gameRoom = gameRoom;
 		this.casinoSprites = casinoSprites;
 		selectable = gameRoom;
@@ -34,21 +34,21 @@ public class GameRoomUI : SelectableUI
 
 	public void DrawAll()
 	{
-		for (int i = 0; i < CasinoUIConstants.GAMEROOM_SIZE * CasinoUIConstants.GAMEROOM_SIZE; i++)
-		{
-			int x = i % CasinoUIConstants.GAMEROOM_SIZE + position.x;
-			int y = -i / CasinoUIConstants.GAMEROOM_SIZE + position.y;
+		//for (int i = 0; i < CasinoUIConstants.GAMEROOM_SIZE * CasinoUIConstants.GAMEROOM_SIZE; i++)
+		//{
+		//	int x = i % CasinoUIConstants.GAMEROOM_SIZE + position.x;
+		//	int y = -i / CasinoUIConstants.GAMEROOM_SIZE + position.y;
 
-			for (var j = 0; j < selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y].Count; j++)
-			{
-				SelectableUI selectableUI = selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y][j];
-				if (selectableUI is GameSlotUI)
-				{
-					selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y].RemoveAt(j);
-					floorMap.SetTile(new Vector3Int(x, y, 0), null);
-				}
-			}
-		}
+		//	for (var j = 0; j < selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y].Count; j++)
+		//	{
+		//		SelectableUI selectableUI = selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y][j];
+		//		if (selectableUI is GameSlotUI)
+		//		{
+		//			selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y].RemoveAt(j);
+		//			slotMap.SetTile(new Vector3Int(x, y, 0), null);
+		//		}
+		//	}
+		//}
 
 		for (int i = 0; i < gameRoom.GameSlots.Rows; i++)
 		{
@@ -88,7 +88,7 @@ public class GameRoomUI : SelectableUI
 			Sprite typedSprite = casinoSprites.GetRoomSpriteByType(gameRoom.GameType);
 			tile.sprite = typedSprite;
 
-			casinoMap.SetTile(new Vector3Int(x, y, 0), tile);
+			roomMap.SetTile(new Vector3Int(x, y, 0), tile);
 
 			//conversion to array position from floor position
 			selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y].Insert(0, this);
@@ -107,13 +107,10 @@ public class GameRoomUI : SelectableUI
 				SelectableUI selectableUI = selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y][j];
 				if (selectableUI is GameRoomUI || selectableUI is GameSlotUI)
 				{
+					//deletes GameSlotUI tile
 					selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y].RemoveAt(j);
-					floorMap.SetTile(new Vector3Int(x, y, 0), null);
-
-					Tile tile = ScriptableObject.CreateInstance<Tile>();
-					Sprite floorSprite = casinoSprites.GetFloorSprite();
-					tile.sprite = floorSprite;
-					casinoMap.SetTile(new Vector3Int(x, y, 0), tile);
+					slotMap.SetTile(new Vector3Int(x, y, 0), null);
+					roomMap.SetTile(new Vector3Int(x, y, 0), null);
 				}
 			}
 		}
@@ -124,6 +121,6 @@ public class GameRoomUI : SelectableUI
 		GameSlotUI gameSlotUI = new GameSlotUI();
 		int x = floorPos.x % 2;
 		int y = (floorPos.y % 2 == 0) ? 1 : 0;
-		gameSlotUI.Init(gameRoom.GameSlots[x, y], floorMap, floorPos, casinoSprites, selectableUILists, this);
+		gameSlotUI.Init(gameRoom.GameSlots[x, y], slotMap, floorPos, casinoSprites, selectableUILists);
 	}
 }

@@ -12,4 +12,9 @@ namespace Assets.Scripts.UI
 		protected abstract void UnregisterUIFields();
 		public abstract void OnAction(ActionType actionType, Vector2Int postion);
 	}
+
+	public abstract class IndexedSelectableUI : SelectableUI
+	{
+		public abstract void OnIndexedAction(int index);
+	}
 }

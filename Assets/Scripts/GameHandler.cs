@@ -7,12 +7,13 @@ using Zenject;
 
 public class GameHandler : MonoBehaviour
 {
-	[Inject(Id = "floorMap")] private Tilemap floorMap;
+	[Inject(Id = "roomMap")] private Tilemap roomMap;
+	[Inject(Id = "slotMap")] private Tilemap slotMap;
+
 	[Inject] private CasinoSprites casinoSprites;
 	[Inject] private FrontendUI frontendUI;
 	[Inject] private PlayerCamera playerCamera;
 	[Inject] private PlayerInputBroadcast playerInputBroadcast;
-	[Inject(Id = "casinoMap")] private Tilemap casinomap;
 
 	private const float IdleTickDuration = 1f;
 	private const string CurrentVersion = "1.0";
@@ -53,7 +54,7 @@ public class GameHandler : MonoBehaviour
 		playerWallet = new PlayerWallet(walletAmount);
 		cashier = new Cashier(casino, playerWallet);
 
-		CasinoUIHandler casinoUIHandler = new CasinoUIHandler(casino, casinoSprites, floorMap, casinomap);
+		CasinoUIHandler casinoUIHandler = new CasinoUIHandler(casino, casinoSprites, roomMap, slotMap);
 		Selector selector = new Selector(playerCamera, casinoUIHandler, playerInputBroadcast);
 		uiDisplayer = new UIDisplayer(selector, playerWallet, frontendUI, casinoSprites);
 

@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using Assets.Scripts.UI;
@@ -13,19 +12,19 @@ public class GameFloorUI : SelectableUI
 
 	private ISelectable selectable;
 	private GameFloor gameFloor;
-	private Tilemap floorMap;
+	private Tilemap roomMap;
+	private Tilemap slotMap;
 	private CasinoSprites casinoSprites;
 	private List<SelectableUI>[,] selectableUILists;
-	private Tilemap casinoMap;
 
-	public void Init(GameFloor gameFloor, Tilemap floorMap, Tilemap casinoMap, CasinoSprites casinoSprites, List<SelectableUI>[,] selectableUIs)
+	public void Init(GameFloor gameFloor, Tilemap roomMap, Tilemap slotMap,CasinoSprites casinoSprites, List<SelectableUI>[,] selectableUILists)
 	{
-		this.casinoMap = casinoMap;
-		this.selectableUILists = selectableUIs;
-		this.casinoSprites = casinoSprites;
+		this.selectableUILists = selectableUILists;
 		this.gameFloor = gameFloor;
+		this.roomMap = roomMap;
+		this.slotMap = slotMap;
+		this.casinoSprites = casinoSprites;
 		selectable = gameFloor;
-		this.floorMap = floorMap;
 
 		RegisterUiField();
 		DrawAll();
@@ -66,10 +65,11 @@ public class GameFloorUI : SelectableUI
 
 	private void DrawRoom(Vector2Int floorPosition)
 	{
-		Vector2Int roomAnchorPos = (floorPosition / 2) * 2 + new Vector2Int(0,1);
+		//snap of room to top left room anchor
+		Vector2Int roomAnchorPos = (floorPosition / 2) * 2 + Vector2Int.up;
 		GameRoomUI gameRoomUI = new GameRoomUI();
 		Vector2Int roomPos = FloorToRoomPos(roomAnchorPos.x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - roomAnchorPos.y);
-		gameRoomUI.Init(gameFloor.GameRooms[roomPos.x, roomPos.y], floorMap, casinoMap, roomAnchorPos, casinoSprites, selectableUILists);
+		gameRoomUI.Init(gameFloor.GameRooms[roomPos.x, roomPos.y], roomMap, slotMap, roomAnchorPos, casinoSprites, selectableUILists);
 	}
 
 	private Vector2Int RoomToFloorPos(int x, int y)
@@ -92,12 +92,14 @@ public class GameFloorUI : SelectableUI
 
 	protected override void UnregisterUIFields()
 	{
-		floorMap.ClearAllTiles();
+		roomMap.ClearAllTiles();
+		slotMap.ClearAllTiles();
+
 		foreach (var list in selectableUILists)
 		{
 			for (int i = 0; i < list.Count; i++)
 			{
-				if (!(list[i] is CasinoUI))
+				if (list[i] is GameFloorUI || list[i] is GameRoomUI || list[i] is GameSlotUI)
 				{
 					list.RemoveAt(i);
 				}

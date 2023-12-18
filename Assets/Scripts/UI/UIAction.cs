@@ -1,23 +1,20 @@
-﻿using CasinoIdler;
+﻿using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Assets.Scripts.UI
 {
-	class UIAction : MonoBehaviour
+	public class UIAction : MonoBehaviour
 	{
-		[SerializeField] private TMP_Text actionNameText;
-		[SerializeField] private Image uiIcon;
-		[SerializeField] protected Button actionButton;
-
 		public TMP_Text ActionNameText => actionNameText;
-		public Image UIIcon => uiIcon;
 		public Button ActionButton => actionButton;
-		public IAction Action { get; set; }
 		public SelectableUI SelectableUI { get; set; }
+		public Action<UIAction> ActionButtonPressed { get; set; }
 
-		public System.Action<UIAction> ActionButtonPressed;
+		[SerializeField] protected TMP_Text actionNameText;
+		[SerializeField] protected Image uiIcon;
+		[SerializeField] protected Button actionButton;
 
 		protected virtual void Awake()
 		{

@@ -1,6 +1,3 @@
-using System.Numerics;
-using NaughtyAttributes.Test;
-
 namespace CasinoIdler
 {
 	public interface IAction
@@ -8,6 +5,7 @@ namespace CasinoIdler
 		public abstract string Name { get; }
 		public abstract ActionType actionType { get; }
 		public abstract bool CanExecute(PlayerWallet wallet);
+
 	}
 
 	public abstract class Action : IAction
@@ -106,7 +104,7 @@ namespace CasinoIdler
 
 		protected override bool CanPurchase()
 		{
-			return true;
+			return casino.CanAddGameFloor;
 		}
 	}
 
@@ -332,14 +330,7 @@ namespace CasinoIdler
 	{
 		Sell,
 		Purchase,
-		Upgrade
-	}
-
-	public enum ActionedType
-	{
-		Casino,
-		GameFloor,
-		GameRoom,
-		GameSlot
+		Upgrade,
+		Move
 	}
 }

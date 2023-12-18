@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Assets.Scripts.UI;
@@ -6,30 +7,31 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using Vector2 = UnityEngine.Vector2;
 
-public class CasinoUI : SelectableUI
+public class CasinoUI : IndexedSelectableUI
 {
 	public override ISelectable Selectable => selectable;
+	public IReadOnlyList<GameFloor> GameFloors => gameFloors;
+	public int CurrentGameFloor { get; private set; }
 
 	private ISelectable selectable;
-	private Tilemap floorMap;
+	private Tilemap roomMap;
+	private Tilemap slotMap;
 	private CasinoSprites casinoSprites;
 	private IReadOnlyList<GameFloor> gameFloors;
-	private int currentGameFloor;
 	private List<SelectableUI>[,] selectableUILists;
-	private Tilemap casinoMap;
 
-	public CasinoUI(Casino casino, CasinoSprites casinoSprites, Tilemap floorMap, Tilemap casinoMap, List<SelectableUI>[,] selectableUILists)
+	public CasinoUI(Casino casino, CasinoSprites casinoSprites, Tilemap roomMap, Tilemap slotMap, List<SelectableUI>[,] selectableUILists)
 	{
-		this.casinoMap = casinoMap;
 		this.selectableUILists = selectableUILists;
-		this.floorMap = floorMap;
+		this.roomMap = roomMap;
 		this.casinoSprites = casinoSprites;
+		this.slotMap = slotMap;
 		selectable = casino;
 		gameFloors = casino.GameFloors;
-		currentGameFloor = 0;
+		CurrentGameFloor = 0;
 
 		RegisterUiField();
-		DrawFloor();
+		DrawFloor(CurrentGameFloor);
 	}
 
 	protected sealed override void RegisterUiField()
@@ -40,25 +42,43 @@ public class CasinoUI : SelectableUI
 		}
 	}
 
-	public override void OnAction(ActionType actionType, Vector2Int pos)
+	public override void OnAction(ActionType actionType, Vector2Int floorPos)
 	{
-		DrawFloor();
+		switch (actionType)
+		{
+			case ActionType.Purchase:
+				DrawFloor(gameFloors.Count - 1);
+				break;
+
+			default:
+				throw new InvalidOperationException("Can't resolve ActionType in GameFloorUI");
+		}
+	}
+
+	public override void OnIndexedAction(int index)
+	{
+		if (gameFloors.Count <= 1)
+			return;
+
+		DrawFloor(index);
 	}
 
 	protected override void UnregisterUIFields()
 	{
-
+		
 	}
 
-	private void DrawFloor()
+	private void DrawFloor(int floorIndex)
 	{
-		floorMap.ClearAllTiles();
 		if (gameFloors.Count < 1)
 			return;
-		GameFloor gameFloor = gameFloors[currentGameFloor];
+
+		roomMap.ClearAllTiles();
+		slotMap.ClearAllTiles();
+
+		CurrentGameFloor = floorIndex;
 		GameFloorUI gameFloorUI = new GameFloorUI();
-		floorMap.ClearAllTiles();
-		gameFloorUI.Init(gameFloor, floorMap, casinoMap, casinoSprites, selectableUILists);
+		gameFloorUI.Init(gameFloors[CurrentGameFloor], roomMap, slotMap, casinoSprites, selectableUILists);
 	}
 }
 
