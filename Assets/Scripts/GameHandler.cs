@@ -22,6 +22,7 @@ public class GameHandler : MonoBehaviour
 	private Cashier cashier;
 	private PlayerWallet playerWallet;
 	private UIDisplayer uiDisplayer;
+	private CombinatoricsHandler combinatoricsHandler;
 	private GameState gameState = GameState.Running;
 	private Coroutine idleTick;
 
@@ -52,13 +53,15 @@ public class GameHandler : MonoBehaviour
 		this.casino = casino;
 		walletAmount += (uint)OfflineWorker.GetOfflineGeneratedAmount(lastPlayed, casino.GetProductionRate());
 		playerWallet = new PlayerWallet(walletAmount);
-		cashier = new Cashier(casino, playerWallet);
+		combinatoricsHandler = new CombinatoricsHandler(casino);
+		cashier = new Cashier(casino, combinatoricsHandler, playerWallet);
 
 		CasinoUIHandler casinoUIHandler = new CasinoUIHandler(casino, casinoSprites, roomMap, slotMap);
 		Selector selector = new Selector(playerCamera, casinoUIHandler, playerInputBroadcast);
 		uiDisplayer = new UIDisplayer(selector, playerWallet, frontendUI, casinoSprites);
 
-		if(idleTick != null)
+
+		if (idleTick != null)
 			StopCoroutine(idleTick);
 
 		idleTick = StartCoroutine(IdleTick());

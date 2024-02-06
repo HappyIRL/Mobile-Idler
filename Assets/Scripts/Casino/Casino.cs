@@ -119,6 +119,7 @@ public class Casino : ISelectable
 	private void OnInternalStructureChanged()
 	{
 		RefreshProductionRate();
+		InternalStructureChanged?.Invoke();
 	}
 }
 

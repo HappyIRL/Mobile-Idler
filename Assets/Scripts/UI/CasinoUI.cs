@@ -5,7 +5,6 @@ using Assets.Scripts.UI;
 using CasinoIdler;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using Vector2 = UnityEngine.Vector2;
 
 public class CasinoUI : IndexedSelectableUI
 {
