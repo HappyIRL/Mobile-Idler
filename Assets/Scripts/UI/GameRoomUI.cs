@@ -34,21 +34,6 @@ public class GameRoomUI : SelectableUI
 
 	public void DrawAll()
 	{
-		//for (int i = 0; i < CasinoUIConstants.GAMEROOM_SIZE * CasinoUIConstants.GAMEROOM_SIZE; i++)
-		//{
-		//	int x = i % CasinoUIConstants.GAMEROOM_SIZE + position.x;
-		//	int y = -i / CasinoUIConstants.GAMEROOM_SIZE + position.y;
-
-		//	for (var j = 0; j < selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y].Count; j++)
-		//	{
-		//		SelectableUI selectableUI = selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y][j];
-		//		if (selectableUI is GameSlotUI)
-		//		{
-		//			selectableUILists[x, CasinoUIConstants.LAST_FLOOR_ROWS_INDEX - y].RemoveAt(j);
-		//			slotMap.SetTile(new Vector3Int(x, y, 0), null);
-		//		}
-		//	}
-		//}
 
 		for (int i = 0; i < gameRoom.GameSlots.Rows; i++)
 		{

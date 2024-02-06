@@ -106,7 +106,7 @@ public class GameFloor : ISelectable
 		gameRoom.Unselect?.Invoke();
 		gameRoomCount--;
 
-		InternalStructureChanged.Invoke();
+		InternalStructureChanged?.Invoke();
 
 		return BaseGameRoomCost;
 	}
