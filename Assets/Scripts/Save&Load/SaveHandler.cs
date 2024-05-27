@@ -5,10 +5,15 @@ public class SaveHandler : MonoBehaviour
 	[Zenject.Inject] private GameHandler gameHandler;
 
 	private Saver saver;
+	private bool gameDataLoaded = false;
 
 	private void Start()
 	{
-		Load();
+		if (!gameDataLoaded)
+		{
+			gameDataLoaded = true;
+			Load();
+		}
 	}
 
 	[NaughtyAttributes.Button("Save")]
@@ -33,8 +38,23 @@ public class SaveHandler : MonoBehaviour
 		saver.LoadNew();
 	}
 
+	private void OnApplicationPause(bool pauseStatus)
+	{
+		if (!pauseStatus && !gameDataLoaded)
+		{
+			gameDataLoaded = true;
+			Load();
+		}
+		else if(pauseStatus)
+		{
+			gameDataLoaded = false;
+			Save();
+		}
+	}
+
 	private void OnDisable()
 	{
+		gameDataLoaded = false;
 		saver ??= new Saver(gameHandler);
 		saver.Save();
 	}

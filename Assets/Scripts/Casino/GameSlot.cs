@@ -2,22 +2,23 @@ using System;
 using System.Collections.Generic;
 using Assets.Scripts.Utils;
 using CasinoIdler;
+using UnityEngine;
 using Action = System.Action;
 
 public class GameSlot : ISelectable
 {
-	public Action Unselect { get; set; }
 	public Action InternalStructureChanged { get; set; }
 	public string Name => GetName();
 	public uint ProductionRate { get; private set; }
 	public GameTypes GameType => gameType;
 
-	private int upgradeLevel; 
+	private uint upgradeLevel; 
 	private uint upgradeCost;
 
 	private List<IAction> actions;
 	private readonly GameTypes gameType;
 	private readonly uint maxUpgradeLevel;
+	private Vector2Int position;
 
 	public GameSlot(GameSlotData data)
 	{
@@ -26,6 +27,7 @@ public class GameSlot : ISelectable
 		upgradeCost = data.UpgradeCost;
 		ProductionRate = data.ProductionRate;
 		maxUpgradeLevel = data.MaxUpgradeLevel;
+		position = new Vector2Int(data.posX, data.posY);
 	}
 
 	public GameSlotData FetchData()
@@ -36,7 +38,9 @@ public class GameSlot : ISelectable
 			UpgradeLevel = this.upgradeLevel,
 			UpgradeCost = this.upgradeCost,
 			ProductionRate = this.ProductionRate,
-			MaxUpgradeLevel = this.maxUpgradeLevel
+			MaxUpgradeLevel = this.maxUpgradeLevel,
+			posX = position.x,
+			posY = position.y
 		};
 
 		return data;
@@ -72,8 +76,8 @@ public class GameSlot : ISelectable
 	public void Upgrade()
 	{
 		upgradeLevel += 1;
-		upgradeCost += 5;
 		ProductionRate += 5;
+		upgradeCost = ProductionRate * ProductionRate * ProductionRate;
 		InternalStructureChanged?.Invoke();
 	}
 
@@ -94,7 +98,7 @@ public struct GameSlotData
 	public GameTypes Types;
 	public int posX;
 	public int posY;
-	public int UpgradeLevel;
+	public uint UpgradeLevel;
 	public uint UpgradeCost;
 	public uint ProductionRate;
 	public uint MaxUpgradeLevel;

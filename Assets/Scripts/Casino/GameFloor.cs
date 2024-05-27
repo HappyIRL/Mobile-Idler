@@ -7,7 +7,6 @@ using Action = System.Action;
 public class GameFloor : ISelectable
 {
 	public string Name => "Floor";
-	public Action Unselect { get; set; }
 	public Action InternalStructureChanged { get; set; }
 	public IReadOnlyTwoDimensionalArray<GameRoom> GameRooms => new ReadOnlyTwoDimensionalArray<GameRoom>(gameRooms);
 	public bool CanAddGameRoom => gameRoomCount < maxGameRooms;
@@ -22,7 +21,7 @@ public class GameFloor : ISelectable
 	{
 		if (isTutorial)
 		{
-			CreateGameRoom(GetBaseGameRoomData());
+			CreateGameRoom(GetBaseGameRoomData(true));
 			return;
 		}
 
@@ -42,25 +41,25 @@ public class GameFloor : ISelectable
 		int rows = gameRooms.GetLength(0);
 		int columns = gameRooms.GetLength(1);
 
-		GameRoomData[,] gameRoomsData = new GameRoomData[rows, columns];
+		List<GameRoomData> gameRoomData = new List<GameRoomData>();
 
 		for (int i = 0; i < rows; i++)
 		{
 			for (int j = 0; j < columns; j++)
 			{
 				if(gameRooms[i,j] != null)
-					gameRoomsData[i, j] = gameRooms[i, j].FetchData();
+					gameRoomData.Add(gameRooms[i, j].FetchData());
 			}
 		}
 
-		data.GameRoomsData = gameRoomsData;
+		data.GameRoomsData = gameRoomData;
 
 		return data;
 	}
 
 	public void CreateNewGameRoom(GameTypes type, int floorPosX, int floorPosY)
 	{
-		GameRoomData data = GetBaseGameRoomData();
+		GameRoomData data = GetBaseGameRoomData(false);
 
 		data.GameType = type;
 		data.IsTutorialRoom = false;
@@ -103,12 +102,19 @@ public class GameFloor : ISelectable
 			throw new InvalidOperationException("The specified game room was not found in the array.");
 		}
 
-		gameRoom.Unselect?.Invoke();
+		uint refundValue = 0;
+
+		foreach (GameSlot gameSlot in gameRoom.GameSlots)
+		{
+			if (gameSlot != null)
+				refundValue += gameRoom.RemoveGameSlot(gameSlot);
+		}
+
 		gameRoomCount--;
 
 		InternalStructureChanged?.Invoke();
 
-		return BaseGameRoomCost;
+		return refundValue + BaseGameRoomCost;
 	}
 
 	public ICollection<IAction> GetActions()
@@ -152,12 +158,12 @@ public class GameFloor : ISelectable
 		InternalStructureChanged?.Invoke();
 	}
 
-	private GameRoomData GetBaseGameRoomData()
+	private GameRoomData GetBaseGameRoomData(bool isTutorial)
 	{
 		GameRoomData data = new GameRoomData
 		{
 			GameType = GameTypes.Roulette,
-			IsTutorialRoom = true
+			IsTutorialRoom = isTutorial
 		};
 
 		return data;
@@ -172,5 +178,5 @@ public class GameFloor : ISelectable
 [Serializable]
 public struct GameFloorData
 {
-	public GameRoomData[,] GameRoomsData;
+	public List<GameRoomData> GameRoomsData;
 }

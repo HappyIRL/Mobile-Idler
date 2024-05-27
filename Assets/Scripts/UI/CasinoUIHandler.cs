@@ -10,6 +10,8 @@ namespace Assets.Scripts.UI
 
 		private readonly SelectableUI rootSelectable;
 
+		public CasinoUI CasinoUI { get; private set; }
+
 		public CasinoUIHandler(Casino casino, CasinoSprites casinoSprites, Tilemap roomMap, Tilemap slotMap)
 		{
 			for (int i = 0; i < selectableUILists.GetLength(0); i++)
@@ -20,8 +22,8 @@ namespace Assets.Scripts.UI
 				}
 			}
 
-			CasinoUI casinoUI = new CasinoUI(casino, casinoSprites, roomMap, slotMap, selectableUILists);
-			rootSelectable = casinoUI;
+			CasinoUI = new CasinoUI(casino, casinoSprites, roomMap, slotMap, selectableUILists);
+			rootSelectable = CasinoUI;
 		}
 
 		public Vector2Int GetCasinoWorldPosition(Vector2 worldPos)

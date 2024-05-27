@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using Assets.Scripts.UI;
 using CasinoIdler;
 using UnityEngine;
@@ -18,7 +17,7 @@ public class GameRoomUI : SelectableUI
 	private List<SelectableUI>[,] selectableUILists;
 	private Vector2Int position;
 
-	public void Init(GameRoom gameRoom, Tilemap roomMap, Tilemap slotMap,Vector2Int position, CasinoSprites casinoSprites, List<SelectableUI>[,] selectableUILists)
+	public void Init(GameRoom gameRoom, Tilemap roomMap, Tilemap slotMap, Vector2Int position, CasinoSprites casinoSprites, List<SelectableUI>[,] selectableUILists)
 	{
 		this.position = position;
 		this.selectableUILists = selectableUILists;
@@ -104,8 +103,10 @@ public class GameRoomUI : SelectableUI
 	private void DrawGameSlot(Vector2Int floorPos)
 	{
 		GameSlotUI gameSlotUI = new GameSlotUI();
+
 		int x = floorPos.x % 2;
 		int y = (floorPos.y % 2 == 0) ? 1 : 0;
+
 		gameSlotUI.Init(gameRoom.GameSlots[x, y], slotMap, floorPos, casinoSprites, selectableUILists);
 	}
 }

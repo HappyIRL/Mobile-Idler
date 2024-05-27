@@ -8,6 +8,7 @@ public class Selector
 {
 	private PlayerCamera playerCamera;
 	private CasinoUIHandler casinoUIHandler;
+	private PlayerInputBroadcast playerInputBroadcast;
 
 	public Vector2Int SelectedPosition { get; private set; }
 	public SelectableUI Selection { get; private set; }
@@ -17,10 +18,10 @@ public class Selector
 
 	public Selector(PlayerCamera playerCamera, CasinoUIHandler casinoUIHandler, PlayerInputBroadcast playerInputBroadcast)
 	{
+		this.playerInputBroadcast = playerInputBroadcast;
 		playerInputBroadcast.Touch0Tap += OnTouch0Tap;
 		this.casinoUIHandler = casinoUIHandler;
 		this.playerCamera = playerCamera;
-
 	}
 
 	protected void OnTouch0Tap(Vector2 touchPos)
@@ -32,6 +33,11 @@ public class Selector
 		NewSelection?.Invoke();
 
 		OldSelection = Selection;
+	}
+
+	public void UnsubscribeEvents()
+	{
+		playerInputBroadcast.Touch0Tap -= OnTouch0Tap;
 	}
 }
 

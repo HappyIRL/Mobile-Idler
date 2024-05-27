@@ -15,7 +15,6 @@ public class GameHandler : MonoBehaviour
 	[Inject] private PlayerCamera playerCamera;
 	[Inject] private PlayerInputBroadcast playerInputBroadcast;
 
-	private const float IdleTickDuration = 1f;
 	private const string CurrentVersion = "1.0";
 
 	private Casino casino;
@@ -23,8 +22,7 @@ public class GameHandler : MonoBehaviour
 	private PlayerWallet playerWallet;
 	private UIDisplayer uiDisplayer;
 	private CombinatoricsHandler combinatoricsHandler;
-	private GameState gameState = GameState.Running;
-	private Coroutine idleTick;
+	private Selector selector;
 
 	public void SetGameData(GameData? gameData)
 	{
@@ -43,6 +41,12 @@ public class GameHandler : MonoBehaviour
 		return FetchGameData();
 	}
 
+	private void Update()
+	{
+		cashier.Tick();
+		uiDisplayer.Tick();
+	}
+
 	private void OnNewSaveGame()
 	{
 		GameInit(new Casino(), 0, null);
@@ -50,31 +54,24 @@ public class GameHandler : MonoBehaviour
 
 	private void GameInit(Casino casino, ulong walletAmount, DateTime? lastPlayed)
 	{
+		ReleaseReferences();
+
 		this.casino = casino;
-		walletAmount += (uint)OfflineWorker.GetOfflineGeneratedAmount(lastPlayed, casino.GetProductionRate());
+		uint offlineWallet = (uint)OfflineWorker.GetOfflineGeneratedAmount(lastPlayed, casino.GetProductionRate());
+		walletAmount += offlineWallet;
 		playerWallet = new PlayerWallet(walletAmount);
+		CasinoUIHandler casinoUIHandler = new CasinoUIHandler(casino, casinoSprites, roomMap, slotMap);
 		combinatoricsHandler = new CombinatoricsHandler(casino);
 		cashier = new Cashier(casino, combinatoricsHandler, playerWallet);
-
-		CasinoUIHandler casinoUIHandler = new CasinoUIHandler(casino, casinoSprites, roomMap, slotMap);
-		Selector selector = new Selector(playerCamera, casinoUIHandler, playerInputBroadcast);
-		uiDisplayer = new UIDisplayer(selector, playerWallet, frontendUI, casinoSprites);
-
-
-		if (idleTick != null)
-			StopCoroutine(idleTick);
-
-		idleTick = StartCoroutine(IdleTick());
+		selector = new Selector(playerCamera, casinoUIHandler, playerInputBroadcast);
+		uiDisplayer = new UIDisplayer(selector, playerWallet, frontendUI, casinoSprites, offlineWallet);
 	}
 
-	private IEnumerator IdleTick()
+	private void ReleaseReferences()
 	{
-		while (gameState == GameState.Running)
-		{
-			cashier.OnTick();
-			uiDisplayer.OnTick();
-			yield return new WaitForSeconds(IdleTickDuration);
-		}
+		selector?.UnsubscribeEvents();
+		combinatoricsHandler?.UnsubscribeEvents();
+		uiDisplayer?.UnsubscribeEvents();
 	}
 
 	private GameData FetchGameData()
@@ -98,9 +95,4 @@ public struct GameData
 	public string Version;
 	public ulong Wallet;
 	public DateTime? LastPlayed;
-}
-
-public enum GameState
-{
-	Running
 }

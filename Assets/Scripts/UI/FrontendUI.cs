@@ -23,6 +23,10 @@ namespace Assets.Scripts.UI
 
 		[SerializeField] private GameObject floorSelectUIActionPrefab;
 		public GameObject FloorSelectUIActionPrefab => floorSelectUIActionPrefab;
+		[SerializeField] private TMP_Text offlineWalletText;
+		public TMP_Text OfflineWalletText => offlineWalletText;
+		[SerializeField] private GameObject offlineWalletUIContainer;
+		public GameObject OfflineWalletUIContainer => offlineWalletUIContainer;
 
 	}
 }

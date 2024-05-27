@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using Assets.Scripts.Utils;
 using CasinoIdler;
+using UnityEngine;
 using Action = System.Action;
 
 public class GameRoom : ISelectable
 {
-	public System.Action Unselect { get; set; }
 	public Action InternalStructureChanged { get; set; }
 	public bool CanAddGameSlot => gameSlotCount < maxGameSlots;
 	public string Name => $"{gameType} Room";
@@ -23,9 +23,12 @@ public class GameRoom : ISelectable
 	private const uint BaseGameSlotCost = 5;
 	private const uint BaseUpgradeGameSlotCost = 5;
 
+	private Vector2Int position;
+
 	public GameRoom(GameRoomData data)
 	{
 		gameType = data.GameType;
+		position = new Vector2Int(data.posX, data.posY);
 
 		if (data.IsTutorialRoom)
 		{
@@ -46,7 +49,7 @@ public class GameRoom : ISelectable
 	{
 		GameSlotData data = GetBaseGameSlotData();
 
-		data.posX = floorPosX % 2; ;
+		data.posX = floorPosX % 2;
 		data.posY = (floorPosY % 2 == 0) ? 1 : 0;
 
 		CreateGameSlot(data);
@@ -64,19 +67,22 @@ public class GameRoom : ISelectable
 		int cols = gameSlots.GetLength(0);
 		int rows = gameSlots.GetLength(1);
 
-		GameSlotData[,] slotDatas = new GameSlotData[cols, rows];
+		List<GameSlotData> gameSlotData = new List<GameSlotData>();
 
 		for (int i = 0; i < cols; i++)
 		{
 			for (int j = 0; j < rows; j++)
 			{
 				if (gameSlots[i, j] != null)
-					slotDatas[i, j] = gameSlots[i, j].FetchData();
+					gameSlotData.Add(gameSlots[i, j].FetchData());
 			}
 		}
 
-		data.GameSlotsData = slotDatas;
+		data.GameSlotsData = gameSlotData;
 		data.GameType = gameType;
+		data.posX = position.x;
+		data.posY = position.y;
+		data.IsTutorialRoom = false;
 
 		return data;
 	}
@@ -122,7 +128,6 @@ public class GameRoom : ISelectable
 			throw new InvalidOperationException("The specified game room was not found in the array.");
 		}
 
-		gameSlot.Unselect?.Invoke();
 		gameSlotCount--;
 
 		InternalStructureChanged.Invoke();
@@ -183,7 +188,7 @@ public class GameRoom : ISelectable
 [Serializable]
 public struct GameRoomData
 {
-	public GameSlotData[,] GameSlotsData;
+	public List<GameSlotData> GameSlotsData;
 	public int posX;
 	public int posY;
 	public GameTypes GameType;

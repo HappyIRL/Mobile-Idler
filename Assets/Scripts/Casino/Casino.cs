@@ -8,16 +8,15 @@ using Action = System.Action;
 public class Casino : ISelectable
 {
 	public Action InternalStructureChanged { get; set; }
-	public Action Unselect { get; set; }
 	public string Name => "Casino";
 	public IReadOnlyList<GameFloor> GameFloors => gameFloors;
 	public bool CanAddGameFloor => gameFloors.Count < maxGameFloors;
 
 	private List<GameFloor> gameFloors = new List<GameFloor>();
-	private List<IAction> actions;
+	private List<IAction>[] arrayOfActions;
 	private uint productionRate;
-	private const uint BaseGameFloorCost = 5;
-	private uint maxGameFloors = 2;
+	private const uint BaseGameFloorCost = 5000;
+	private uint maxGameFloors = 3;
 
 	public Casino()
 	{
@@ -60,15 +59,24 @@ public class Casino : ISelectable
 
 	public ICollection<IAction> GetActions()
 	{
-		return actions;
+		return arrayOfActions[gameFloors.Count - 1];
 	}
 
 	public uint RemoveGameFloor(GameFloor gameFloor)
 	{
 		gameFloors.Remove(gameFloor);
-		gameFloor.Unselect?.Invoke();
 
-		return BaseGameFloorCost;
+		OnInternalStructureChanged();
+
+		uint refundValue = 0;
+
+		foreach(GameRoom gameRoom in gameFloor.GameRooms)
+		{
+			if (gameRoom != null)
+				refundValue += gameFloor.RemoveGameRoom(gameRoom);
+		}
+
+		return refundValue + BaseGameFloorCost;
 	}
 
 	public void CreateNewGameFloor()
@@ -94,7 +102,8 @@ public class Casino : ISelectable
 	{
 		GameFloor gameFloor = new GameFloor(data, isTutorial);
 
-		IAction[] gameFloorActions = { new SellGameFloorAction(this, gameFloor, "Sell GameFloor", 5) };
+		//new SellGameFloorAction(this, gameFloor, "Sell GameFloor", 5)
+		IAction[] gameFloorActions = {};
 		gameFloor.InitActions(gameFloorActions);
 		gameFloor.InternalStructureChanged += OnInternalStructureChanged;
 
@@ -103,7 +112,12 @@ public class Casino : ISelectable
 
 	private void CreateCasinoActions()
 	{
-		actions = new List<IAction> { new PurchaseGameFloorAction(this, "Buy GameFloor", BaseGameFloorCost) };
+		arrayOfActions = new List<IAction>[maxGameFloors];
+
+		for (int i = 0; i < maxGameFloors; i++)
+		{
+			arrayOfActions[i] = new List<IAction> { new PurchaseGameFloorAction(this, "Buy GameFloor", (uint)(BaseGameFloorCost * Mathf.Pow(i + 1, 10))) };
+		}
 	}
 
 	private GameFloorData GetBaseGameFloorData()
